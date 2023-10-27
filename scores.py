@@ -8,11 +8,20 @@ ScoreLine: TypeAlias = tuple[str, list[float]]
 
 
 def get_scores(game: str) -> list[ScoreLine]:
+    """Retourne le contenu du tableau des scores pour le jeu nommé `game`.
+
+    Chaque ligne du fichier des scores est composé du nom du joueur suivi d'un nombre
+    arbitraire de flottants.
+
+    :param game: Le nom du jeu.
+    :returns:    Les scores stockés pour ce jeu.
+    """
     lines: list[str]
     scores: list[ScoreLine] = []
     path: Path
     name: str
     numbers: list[str]
+    line: str
 
     SCORES_PATH.mkdir(parents=True, exist_ok=True)
     path = SCORES_PATH.joinpath(game.lower() + ".txt")
@@ -29,6 +38,13 @@ def get_scores(game: str) -> list[ScoreLine]:
 
 
 def set_scores(game: str, scores: Iterable[ScoreLine]) -> None:
+    """Écrit les scores du jeu nommé `game`.
+
+    Le format de `scores` est le même que la valeur de retour de `get_scores`.
+
+    :param game:   Le nom du jeu.
+    :param scores: Les scores pour ce jeu.
+    """
     path: Path
     name: str
     numbers: list[float]
