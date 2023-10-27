@@ -12,13 +12,12 @@ def make_raw(fd: int) -> list[Any]:
     """Passe le terminal donné par `fd` en mode brute.
 
     Dans ce mode, le caractères entrés par l'utilisateur ne sont pas affichés sur le terminal
-    et `read(1)` retourne au bout d'un seul charactère lu (n'attend pas un retour à la ligne).
+    et `read(1)` retourne au bout d'un seul caractère lu (n'attend pas un retour à la ligne).
 
-    :param      fd:   Le file descriptor du terminal (généralement `sys.stdin.fileno()`)
-    :type       fd:   int
+    :param fd: Le file descriptor du terminal (généralement `sys.stdin.fileno()`)
 
-    :returns:   Retourne le mode dans lequel était le terminal avant de passer en mode brute.
-    :rtype:     Liste composée comme ça: [int, int, int, int, int, int, list[bytes | int]]
+    :returns:  Retourne le mode dans lequel était le terminal avant de passer en mode brute.
+    :rtype:    Liste composée comme ça: [int, int, int, int, int, int, list[bytes | int]]
     """
     # this is from the signature of termios.tcgetattr
     original_mode: list[Any]
@@ -46,42 +45,48 @@ def make_raw(fd: int) -> list[Any]:
 
 
 def restore(fd: int, mode: list[Any]) -> None:
-    """Restore le terminal donné par `fd` dans le mode `mode`.
+    """Restaure le terminal donné par `fd` dans le mode `mode`.
 
-    :param      fd:    Le file descriptor du terminal (généralement `sys.stdin.fileno()`)
-    :type       fd:    int
-    :param      mode:  Le mode dans lequel était le terminal était avant d'être passé en mode brute.
-    :type       mode:  Liste composée comme ça: [int, int, int, int, int, int, list[bytes | int]]
+    :param fd:   Le file descriptor du terminal (généralement `sys.stdin.fileno()`)
+    :param mode: Le mode dans lequel était le terminal était avant d'être passé en mode brute.
+    :type  mode: Liste composée comme ça: [int, int, int, int, int, int, list[bytes | int]]
     """
     termios.tcsetattr(fd, termios.TCSADRAIN, mode)
-
-
-def hide_cursor() -> None:
-    """Cache le curseur du terminal."""
-    print("\x1b[?25l", end="")
-
-
-def show_cursor() -> None:
-    """Affiche le curseur du terminal."""
-    print("\x1b[?25h", end="")
 
 
 def get_size() -> tuple[int, int]:
     """Retourne la taille du terminal dans le format (largeur, hauteur).
 
-    :returns:   La taille du terminal
-    :rtype:     tuple[int, int]
+    :returns: La taille du terminal
     """
     return os.get_terminal_size()
+
+
+def hide_cursor() -> None:
+    """Cache le curseur du terminal.
+
+    Cette fonction ne sera effective qu'après avoir flush stdout.
+    """
+    print("\x1b[?25l", end="")
+
+
+def show_cursor() -> None:
+    """Affiche le curseur du terminal.
+
+    Cette fonction ne sera effective qu'après avoir flush stdout.
+    """
+    print("\x1b[?25h", end="")
 
 
 def set_cursor(x: int, y: int) -> None:
     """Place le le curseur en x,y sur le terminal.
 
-    :param      x:    La colonne où sera mis le curseur (la première colonne est 1 et non 0)
-    :type       x:    int
-    :param      y:    La ligne où sera mis le curseur (la première ligne est 1 et non 0)
-    :type       y:    int
+    Cette fonction ne sera effective qu'après avoir flush stdout.
+    Si l'une des deux coordonnées est négative, rien ne se passera.
+    Si les coordonnées sont en dehors de l'écran, le curseur sera "clamp" sur les bords.
+
+    :param x:    La colonne où sera mis le curseur (la première colonne est 1 et non 0)
+    :param y:    La ligne où sera mis le curseur (la première ligne est 1 et non 0)
     """
     print(f"\x1b[{y};{x}H", end="")
 
@@ -89,8 +94,9 @@ def set_cursor(x: int, y: int) -> None:
 def cursor_up(lines: int) -> None:
     """Déplace le curseur de `lines` lignes vers le haut, relativement à sa position actuelle.
 
-    :param      lines:  Le nombre de lignes
-    :type       lines:  int
+    Cette fonction ne sera effective qu'après avoir flush stdout.
+
+    :param lines:  Le nombre de lignes
     """
     print(f"\x1b[{lines}A", end="")
 
@@ -98,61 +104,54 @@ def cursor_up(lines: int) -> None:
 def cursor_left(columns: int) -> None:
     """Déplace le curseur de `columns` colonnes vers la gauche, relativement à sa position actuelle.
 
+    Cette fonction ne sera effective qu'après avoir flush stdout.
+
     :param      lines:  Le nombre de colonnes
-    :type       lines:  int
     """
     print(f"\x1b[{columns}D", end="")
 
 
 def clear() -> None:
-    """Efface le terminal."""
+    """Efface le terminal.
+
+    Cette fonction ne sera effective qu'après avoir flush stdout.
+    """
     print("\x1b[2J", end="")
 
 
 def red(text: str) -> str:
-    """Retourne le text passé en entrée, avec les codes ANSI nécéssaires pour qu'il soit affiché en rouge.
+    """Retourne le texte passé en entrée, avec les codes ANSI nécessaires pour qu'il soit affiché en rouge.
 
-    :param      text:  Le texte à colorer
-    :type       text:  str
-
-    :returns:   Le texte en couleur
-    :rtype:     str
+    :param text: Le texte à colorer
+    :returns:     Le texte en couleur
     """
     return f"\x1b[31m{text}\x1b[0m"
 
 
 def green(text: str) -> str:
-    """Retourne le text passé en entrée, avec les codes ANSI nécéssaires pour qu'il soit affiché en vert.
+    """Retourne le texte passé en entrée, avec les codes ANSI nécessaires pour qu'il soit affiché en vert.
 
-    :param      text:  Le texte à colorer
-    :type       text:  str
-
-    :returns:   Le texte en couleur
-    :rtype:     str
+    :param text: Le texte à colorer
+    :returns:    Le texte en couleur
     """
     return f"\x1b[32m{text}\x1b[0m"
 
 
 def bold(text: str) -> str:
-    """Retourne le text passé en entrée, avec les codes ANSI nécéssaires pour qu'il soit affiché en gras.
+    """Retourne le texte passé en entrée, avec les codes ANSI nécessaires pour qu'il soit affiché en gras.
 
-    :param      text:  Le texte à modifier
-    :type       text:  str
-
-    :returns:   Le texte en gras
-    :rtype:     str
+    :param text: Le texte à modifier
+    :returns:    Le texte en gras
     """
     return f"\x1b[1m{text}\x1b[0m"
 
 
 def invert(text: str) -> str:
-    """Retourne le text passé en entrée, avec les codes ANSI nécéssaires pour qu'il soit affiché avec les couleurs de fond et de texte inversés.
+    """Retourne le texte passé en entrée, avec les codes ANSI nécessaires pour qu'il soit affiché avec les couleurs
+    de fond et de texte inversés.
 
-    :param      text:  Le texte à modifier
-    :type       text:  str
-
-    :returns:   Le texte avec les couleurs inversées
-    :rtype:     str
+    :param text: Le texte à modifier
+    :returns:    Le texte avec les couleurs inversées
     """
     return f"\x1b[7m{text}\x1b[0m"
 
@@ -161,12 +160,10 @@ def get_key() -> str:
     r"""Lit un (et un seul) caractère depuis stdin.
 
     Les touches spéciales (qui commencent avec \x1b) lisent plusieurs caractères.
-    Certaines touches spéciales sont reconnues et retourne leur nom. Ces touches sont
-    UP, DOWN, RIGHT, LEFT qui représentent les flèches directionnelles et BACKSPACE qui représente la touche
-    retour arrière.
+    Certaines touches spéciales sont reconnues et retourne leur nom. Ces touches sont UP, DOWN, RIGHT, LEFT qui
+    représentent les flèches directionnelles et BACKSPACE qui représente la touche retour arrière.
 
-    :returns:   Le caractère qui a été lu.
-    :rtype:     str
+    :returns: Le caractère qui a été lu.
     """
     next_char: str
 
@@ -190,5 +187,11 @@ def get_key() -> str:
 
 
 def strip_escapes(text: str) -> str:
-    # remove all the escape codes,  useful to get the real length of a string
+    """Supprime les escape codes ANSI qui commencent avec un CSI et retourne le résultat.
+
+    Très utile pour trouver la "vrai longueur" d'une chaîne (le nombre de caractères qui sont visibles).
+
+    :param text: Le texte à nettoyer
+    :returns:    Le texte sans les escapes codes ANSI
+    """
     return re.sub(r"\x1b\[(\d+;?)+[a-zA-Z]", "", text)
