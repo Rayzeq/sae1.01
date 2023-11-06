@@ -130,8 +130,6 @@ def screen(
     height: int
     max_length: int
     text: str
-    i: int
-    line: str
 
     terminal.clear()
     main_frame()
@@ -150,18 +148,18 @@ def screen(
         x = center(max_length, width)
         y = center(len(content), height)
 
-        for i, line in enumerate(content):
-            print_at(x, y + i, line)
+        display_at(content, x, y)
 
     # force stdout to be flushed so everything we wrote is actually displayed
     print(end="", flush=True)
 
 
-def prompt(question: str, *, decorations: list[tuple[int, int, str]] = []) -> str:
+def prompt(question: str, *, decorations: list[tuple[int, int, str]] = [], invalid: list[str] = []) -> str:
     """Demande à l'utilisateur de rentrer un texte.
 
     :param question:    La question à afficher.
     :param decorations: Même chose que dans `screen`.
+    :param invalid:     La liste des valeurs qui ne serons pas acceptées.
     :returns:           Le texte que l'utilisateur a entré.
     """
     key: str
@@ -172,7 +170,7 @@ def prompt(question: str, *, decorations: list[tuple[int, int, str]] = []) -> st
 
     while True:
         prompt = "\b\b"
-        if value == "":
+        if value == "" or value in invalid:
             prompt += red("> ")
         else:
             prompt += green("> ")
@@ -185,7 +183,7 @@ def prompt(question: str, *, decorations: list[tuple[int, int, str]] = []) -> st
             value += key
         elif key == "BACKSPACE":
             value = value[:-1]
-        elif key == "\n" and value != "":
+        elif key == "\n" and value != "" and value not in invalid:
             terminal.hide_cursor()
             return value
 
