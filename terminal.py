@@ -1,3 +1,8 @@
+"""Utilitaires pour contrôler le terminal.
+
+La majorité des fonctions de ce module utilisent des codes d'échappement ANSI..
+"""
+
 from __future__ import annotations
 
 import os
