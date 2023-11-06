@@ -19,14 +19,13 @@ def make_raw(fd: int) -> list[Any]:
     :returns:  Retourne le mode dans lequel était le terminal avant de passer en mode brute.
     :rtype:    Liste composée comme ça: [int, int, int, int, int, int, list[bytes | int]]
     """
-    # this is from the signature of termios.tcgetattr
+    # the type is from the signature of termios.tcgetattr
     original_mode: list[Any]
-    # a better definition would be: tuple[int, int, int, int, int, int, list[bytes | int]]
-    # but we can't use it because it's a list and not a tuple
 
     new_mode: list[Any]
 
     original_mode = termios.tcgetattr(fd)
+    # copy old attributes
     new_mode = original_mode.copy()
     new_mode[tty.CC] = original_mode[tty.CC].copy()
 
@@ -37,7 +36,9 @@ def make_raw(fd: int) -> list[Any]:
         | termios.ICANON
     )
 
+    # allow stdin.read(1) to return after reading only one character
     new_mode[tty.CC][termios.VMIN] = 1
+    # see termios(3)
     new_mode[tty.CC][termios.VTIME] = 0
 
     termios.tcsetattr(fd, termios.TCSADRAIN, new_mode)
