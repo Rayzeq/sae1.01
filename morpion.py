@@ -6,9 +6,23 @@ from scores import get_scores, set_scores
 from terminal import bold, get_key, invert, strip_escapes
 
 SCOREBOARD = "morpion"
+RULES = [
+    "L'objectif est de mettre trois fois son symbole de suite (× ou ○) dans une grille de 3 par 3.",
+    "Pour ce faire vous allez placer votre symbole dans une case inoccupée chacun votre tour.",
+    "Une ligne peut être horizontale, verticale, ou diagonale.",
+]
 
 
-def add_score(winner: str, loser: str) -> None:
+def add_score(winner: str, loser: str, *, tie: bool = False) -> None:
+    """Met à jour le score des deux joueurs dans la base de donnée des scores.
+
+    Le gagnant se voit ajouter une victoire et les deux joueurs se voient ajouter une partie jouée.
+    Si `tie` est vrai, alors aucun joueur ne voit son nombre de victoires augmenter.
+
+    :param winner: Le nom du gagnant
+    :param loser:  Le nom du perdant
+    :param tie:    Vrai si la partie s'est terminée par une égalité.
+    """
     scores: dict[str, list[float]]
 
     scores = dict(get_scores(SCOREBOARD))
@@ -17,7 +31,8 @@ def add_score(winner: str, loser: str) -> None:
     if loser not in scores:
         scores[loser] = [0, 0]
 
-    scores[winner][0] += 1
+    if not tie:
+        scores[winner][0] += 1
     scores[winner][1] += 1
     scores[loser][1] += 1
 
@@ -25,11 +40,19 @@ def add_score(winner: str, loser: str) -> None:
 
 
 def get_sorted_scores() -> list[tuple[str, str]]:
+    """Retourne les scores triés par ordre décroissant (un score plus grand est meilleur).
+
+    Le score d'un joueur représente son pourcentage de victoires.
+
+    :returns: Les scores triés.
+    :rtype:   Une liste de tuples (nom du joueur, score).
+    """
     score_lines: list[tuple[str, float]]
     player: str
     wins: float
     total: float
     winrate: float
+    x: tuple[str, float]
 
     score_lines = []
     for player, (wins, total) in get_scores(SCOREBOARD):
@@ -41,6 +64,11 @@ def get_sorted_scores() -> list[tuple[str, str]]:
 
 
 def display_grid(message: str, grid: list[list[str]]) -> None:
+    """Affiche la grille du jeu.
+
+    :param message: Un message à afficher au dessus de la grille
+    :param grid:    La grille en elle-même
+    """
     LINE_LENGHT: int = 11
 
     line: list[str]
@@ -60,6 +88,12 @@ def display_grid(message: str, grid: list[list[str]]) -> None:
 
 
 def place_symbol(player: str, symbol: str, grid: list[list[str]]) -> None:
+    """Demande au joueur `player` de placer son symbole `symbol` dans la grille.
+
+    :param player: Le joueur qui doit placer son symbol
+    :param symbol: Le symbole qui correspond à ce joueur (× ou ○)
+    :param grid:   La grille de jeu
+    """
     key: str
     sel_x: int = 1
     sel_y: int = 1
@@ -85,8 +119,17 @@ def place_symbol(player: str, symbol: str, grid: list[list[str]]) -> None:
 
 
 def check_win(grid: list[list[str]]) -> str:
+    """Vérifie si un joueur a gagné.
+
+    :param grid: La grille de jeu
+    :returns:    Cette fonction retourne:
+        - "×" ou "○" si un joueur a gagné
+        - "t" si la partie s'est terminée par une égalité
+        - "" si la partie n'est pas terminée
+    """
     line: list[str]
     x: int
+    symbol: str
 
     for line in grid:
         if line[0] == line[1] == line[2]:
@@ -102,10 +145,18 @@ def check_win(grid: list[list[str]]) -> str:
     if grid[0][2] == grid[1][1] == grid[2][0]:
         return grid[0][2].strip()
 
+    if all(all(symbol != "   " for symbol in line) for line in grid):
+        return "t"
+
     return ""
 
 
 def game(player1: str, player2: str) -> None:
+    """Lance une partie de morpion et sauvegarde le score à la fin de la partie.
+
+    :param player1: Le nom du joueur 1 (celui qui commence)
+    :param player2: Le nom du joueur 2
+    """
     grid: list[list[str]]
     playing: str
     waiting: str
@@ -131,13 +182,21 @@ def game(player1: str, player2: str) -> None:
         if winner != "":
             break
 
-    winner, loser = (player1, player2) if winner == "×" else (player2, player1)
-    add_score(winner, loser)
+    if winner == "t":
+        add_score(player1, player2, tie=True)
 
-    display.screen(
-        [f"{bold(winner)} a gagné !!!"],
-        keys={"ENTER": "Continuer"},
-    )
+        display.screen(
+            ["Égalité !!!"],
+            keys={"ENTER": "Continuer"},
+        )
+    else:
+        winner, loser = (player1, player2) if winner == "×" else (player2, player1)
+        add_score(winner, loser)
+
+        display.screen(
+            [f"{bold(winner)} a gagné !!!"],
+            keys={"ENTER": "Continuer"},
+        )
 
     while get_key() != "\n":
         pass

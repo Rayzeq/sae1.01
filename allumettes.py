@@ -65,7 +65,7 @@ def get_sorted_scores() -> list[tuple[str, str]]:
 def game(player1: str, player2: str) -> None:
     """Lance une partie du jeu des allumettes et sauvegarde le score à la fin de la partie.
 
-    :param player1: Le nom du joueur 1
+    :param player1: Le nom du joueur 1 (celui qui commence)
     :param player2: Le nom du joueur 2
     """
     matches: int
