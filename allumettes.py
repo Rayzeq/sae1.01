@@ -7,9 +7,22 @@ from scores import get_scores, set_scores
 from terminal import bold, get_key
 
 SCOREBOARD = "allumettes"
+RULES = [
+    "Dans ce jeu, l'objectif est de ne pas être le dernier à prendre une allumette.",
+    "Le gagnant est celui qui fait que l'autre prenne la dernière allumette disponible.",
+    "A tour de rôle, chaque joueur pourra prendre entre 1 et 3 allumettes comprises.",
+    "Ce jeu se joue normalement avec 20 allumettes, mais vous pouvez en choisir un peu plus ou un peu moins.",
+]
 
 
 def add_score(winner: str, loser: str) -> None:
+    """Met à jour le score des deux joueurs dans la base de donnée des scores.
+
+    Le gagnant se voit ajouter une victoire et les deux joueurs se voient ajouter une partie jouée.
+
+    :param winner: Le nom du gagnant
+    :param loser:  Le nom du perdant
+    """
     scores: dict[str, list[float]]
 
     scores = dict(get_scores(SCOREBOARD))
@@ -26,11 +39,19 @@ def add_score(winner: str, loser: str) -> None:
 
 
 def get_sorted_scores() -> list[tuple[str, str]]:
+    """Retourne les scores triés par ordre décroissant (un score plus grand est meilleur).
+
+    Le score d'un joueur représente son pourcentage de victoires.
+
+    :returns: Les scores triés.
+    :rtype:   Une liste de tuples (nom du joueur, score).
+    """
     score_lines: list[tuple[str, float]]
     player: str
     wins: float
     total: float
     winrate: float
+    x: tuple[str, float]
 
     score_lines = []
     for player, (wins, total) in get_scores(SCOREBOARD):
@@ -42,6 +63,11 @@ def get_sorted_scores() -> list[tuple[str, str]]:
 
 
 def game(player1: str, player2: str) -> None:
+    """Lance une partie du jeu des allumettes et sauvegarde le score à la fin de la partie.
+
+    :param player1: Le nom du joueur 1
+    :param player2: Le nom du joueur 2
+    """
     matches: int
     playing: str
     waiting: str
