@@ -143,6 +143,15 @@ def green(text: str) -> str:
     return f"\x1b[32m{text}\x1b[0m"
 
 
+def gray(text: str) -> str:
+    """Retourne le texte passé en entrée, avec les codes ANSI nécessaires pour qu'il soit affiché en vert.
+
+    :param text: Le texte à colorer
+    :returns:    Le texte en couleur
+    """
+    return f"\x1b[90m{text}\x1b[0m"
+
+
 def bold(text: str) -> str:
     """Retourne le texte passé en entrée, avec les codes ANSI nécessaires pour qu'il soit affiché en gras.
 
