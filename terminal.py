@@ -85,7 +85,7 @@ def show_cursor() -> None:
 
 
 def set_cursor(x: int, y: int) -> None:
-    """Place le le curseur en x,y sur le terminal.
+    """Place le curseur en x,y sur le terminal.
 
     Cette fonction ne sera effective qu'après avoir flush stdout.
     Si l'une des deux coordonnées est négative, rien ne se passera.
@@ -95,6 +95,18 @@ def set_cursor(x: int, y: int) -> None:
     :param y:    La ligne où sera mis le curseur (la première ligne est 1 et non 0)
     """
     print(f"\x1b[{y};{x}H", end="")
+
+
+def set_cursor_x(x: int) -> None:
+    """Place le curseur à la colonne `x` sur le terminal.
+
+    Cette fonction ne sera effective qu'après avoir flush stdout.
+    Si x est négative, rien ne se passera.
+    Si x est en dehors de l'écran, le curseur sera "clamp" sur les bords.
+
+    :param x:    La colonne où sera mis le curseur (la première colonne est 1 et non 0)
+    """
+    print(f"\x1b[{x}G", end="")
 
 
 def cursor_up(lines: int) -> None:
