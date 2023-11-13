@@ -14,7 +14,7 @@ RULES = [
 
 
 def add_score(winner: str, loser: str, *, tie: bool = False) -> None:
-    """Met à jour le score des deux joueurs dans la base de donnée des scores.
+    """Met à jour le score des deux joueurs dans la base de donnée.
 
     Le gagnant se voit ajouter une victoire et les deux joueurs se voient ajouter une partie jouée.
     Si `tie` est vrai, alors aucun joueur ne voit son nombre de victoires augmenter.
@@ -105,13 +105,13 @@ def place_symbol(player: str, symbol: str, grid: list[list[str]]) -> None:
 
         key = get_key()
         if key == "UP":
-            sel_y = max(0, sel_y - 1)
+            sel_y = (sel_y - 1) % 3
         elif key == "DOWN":
-            sel_y = min(2, sel_y + 1)
+            sel_y = (sel_y + 1) % 3
         elif key == "LEFT":
-            sel_x = max(0, sel_x - 1)
+            sel_x = (sel_x - 1) % 3
         elif key == "RIGHT":
-            sel_x = min(2, sel_x + 1)
+            sel_x = (sel_x + 1) % 3
         elif key == "\n" and grid[sel_y][sel_x] == "   ":
             break
 
@@ -132,17 +132,17 @@ def check_win(grid: list[list[str]]) -> str:
     symbol: str
 
     for line in grid:
-        if line[0] == line[1] == line[2]:
+        if line[0] == line[1] == line[2] != "   ":
             return line[0].strip()
 
     for x in range(3):
-        if grid[0][x] == grid[1][x] == grid[2][x]:
+        if grid[0][x] == grid[1][x] == grid[2][x] != "   ":
             return grid[0][x].strip()
 
-    if grid[0][0] == grid[1][1] == grid[2][2]:
+    if grid[0][0] == grid[1][1] == grid[2][2] != "   ":
         return grid[0][0].strip()
 
-    if grid[0][2] == grid[1][1] == grid[2][0]:
+    if grid[0][2] == grid[1][1] == grid[2][0] != "   ":
         return grid[0][2].strip()
 
     if all(all(symbol != "   " for symbol in line) for line in grid):
