@@ -9,7 +9,13 @@ from scores import get_scores, set_scores
 from terminal import bold, get_key, strip_escapes
 
 SCOREBOARD = "pow4"
-RULES = []
+RULES = [
+    "L'objectif est d'aligner 4 jetons de sa couleur dans une grille de 7 par 6.",
+    "Pour ce faire vous allez placer votre jeton dans une colonne non remplie chacun votre tour.",
+    "Une ligne peut être horizontale, verticale, ou diagonale.",
+    "Le premier joueur à aligner 4 jetons de sa couleur gagne la partie.",
+    "Si la grille est remplie sans qu'aucun joueur n'ait aligné 4 jetons, la partie se termine par une égalité.",
+]
 
 
 def add_score(winner: str, loser: str, *, tie: bool = False) -> None:
@@ -63,6 +69,10 @@ def get_sorted_scores() -> list[tuple[str, str]]:
 
 
 def display_grid(grid: list[list[str]]) -> None:
+    """Affiche la "grille" du jeu.
+
+    :param grid:    La grille du jeu
+    """
     line: list[str]
     lines: list[str] = []
 
@@ -75,6 +85,14 @@ def display_grid(grid: list[list[str]]) -> None:
 
 
 def drop_token(x: int, color: str, grid: list[list[str]]) -> None:
+    """Fait tomber un jeton dans la colonne `x` de la grille `grid`.
+
+    Cette fonction joue une animation pour faire tomber le jeton ET modifie la grille.
+
+    :param x:     La colonne dans laquelle le jeton doit être placé
+    :param color: La couleur du jeton
+    :param grid:  La grille de jeu
+    """
     DELAY: float = 0.2
     y: int = 0
 
@@ -93,6 +111,12 @@ def drop_token(x: int, color: str, grid: list[list[str]]) -> None:
 
 
 def place_token(player: str, color: str, grid: list[list[str]]) -> None:
+    """Demande au joueur `player` de placer un jeton dans la grille.
+
+    :param player: Le joueur qui doit placer un jeton
+    :param color:  La couleur du jeton
+    :param grid:   La grille de jeu
+    """
     key: str
     sel_x: int = 3
     msg: str
@@ -125,6 +149,14 @@ def place_token(player: str, color: str, grid: list[list[str]]) -> None:
 
 
 def check_win(grid: list[list[str]]) -> str:
+    r"""Vérifie si un joueur a gagné.
+
+    :param grid: La grille de jeu
+    :returns:    Cette fonction retourne:
+        - le jeton du joueur qui a gagné si un joueur à gagné ("\x1b[31m⬤\x1b[0m" ou "\x1b[33m⬤\x1b[0m")
+        - "t" si la partie s'est terminée par une égalité
+        - "" si la partie n'est pas terminée
+    """
     x: int
     y: int
     token: str
@@ -156,6 +188,13 @@ def check_win(grid: list[list[str]]) -> str:
 
 
 def game(player1: str, player2: str) -> None:
+    """Lance une partie de puissance 4 et sauvegarde le score à la fin de la partie.
+
+    Ce jeu utilise des séquences d'échappement ANSI pour afficher des couleurs des jetons.
+
+    :param player1: Le nom du joueur 1 (celui qui commence)
+    :param player2: Le nom du joueur 2
+    """
     grid: list[list[str]]
     playing: str
     waiting: str
