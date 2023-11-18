@@ -16,6 +16,8 @@ RULES = [
     "Le premier joueur à aligner 4 jetons de sa couleur gagne la partie.",
     "Si la grille est remplie sans qu'aucun joueur n'ait aligné 4 jetons, la partie se termine par une égalité.",
 ]
+P1_COLOR = "31"
+P2_COLOR = "93"
 
 
 def add_score(winner: str, loser: str, *, tie: bool = False) -> None:
@@ -153,7 +155,7 @@ def check_win(grid: list[list[str]]) -> str:
 
     :param grid: La grille de jeu
     :returns:    Cette fonction retourne:
-        - le jeton du joueur qui a gagné si un joueur à gagné ("\x1b[31m⬤\x1b[0m" ou "\x1b[33m⬤\x1b[0m")
+        - le jeton du joueur qui a gagné si un joueur à gagné ("\x1b[31m⬤\x1b[0m" ou "\x1b[93m⬤\x1b[0m")
         - "t" si la partie s'est terminée par une égalité
         - "" si la partie n'est pas terminée
     """
@@ -215,9 +217,9 @@ def game(player1: str, player2: str) -> None:
         playing, waiting = waiting, playing
 
         if playing == player1:
-            place_token(playing, "\x1b[31m", grid)
+            place_token(playing, f"\x1b[{P1_COLOR}m", grid)
         else:
-            place_token(playing, "\x1b[33m", grid)
+            place_token(playing, f"\x1b[{P2_COLOR}m", grid)
 
         winner = check_win(grid)
         if winner != "":
@@ -231,7 +233,7 @@ def game(player1: str, player2: str) -> None:
             keys={"ENTER": "Continuer"},
         )
     else:
-        winner, loser = (player1, player2) if winner == "\x1b[31m⬤\x1b[0m" else (player2, player1)
+        winner, loser = (player1, player2) if winner == f"\x1b[{P1_COLOR}m⬤\x1b[0m" else (player2, player1)
         add_score(winner, loser)
 
         display.screen(
