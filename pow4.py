@@ -18,6 +18,9 @@ RULES = [
 ]
 P1_COLOR = "31"
 P2_COLOR = "93"
+GRID_WIDTH = 7
+GRID_HEIGHT = 6
+TOKEN = "⬤"
 
 
 def add_score(winner: str, loser: str, *, tie: bool = False) -> None:
@@ -86,6 +89,14 @@ def display_grid(grid: list[list[str]]) -> None:
     display.screen(lines, keys={"ENTER": "Valider", "← / →": "Choisir une case"})
 
 
+def make_token(color: str) -> str:
+    """Renvoie un jeton coloré.
+
+    :param color: Le code de la couleur du jeton en séquence d'échappement ANSI
+    """
+    return f"\x1b[{color}m{TOKEN}\x1b[0m"
+
+
 def drop_token(x: int, color: str, grid: list[list[str]]) -> None:
     """Fait tomber un jeton dans la colonne `x` de la grille `grid`.
 
@@ -98,18 +109,20 @@ def drop_token(x: int, color: str, grid: list[list[str]]) -> None:
     DELAY: float = 0.2
     y: int = 0
 
-    grid[y][x] = f"{color}⬤\x1b[0m"
+    grid[y][x] = make_token(color)
     display_grid(grid)
     time.sleep(DELAY)
 
-    while y < 5 and grid[y + 1][x] == " ":
+    while y < GRID_HEIGHT - 1 and grid[y + 1][x] == " ":
         grid[y][x] = " "
-        grid[y + 1][x] = f"{color}⬤\x1b[0m"
+        grid[y + 1][x] = make_token(color)
         display_grid(grid)
         time.sleep(DELAY)
         y += 1
 
-    grid[y][x] = f"{color}⬤\x1b[0m"
+    grid[y][x] = make_token(color)
+    # ignore toutes les touches appuyées pendant les time.sleep()
+    terminal.flush_stdin()
 
 
 def place_token(player: str, color: str, grid: list[list[str]]) -> None:
@@ -131,9 +144,9 @@ def place_token(player: str, color: str, grid: list[list[str]]) -> None:
         msg = f"{bold(player)}, à toi de jouer !"
 
         # here the cursor is at the end of the last line of the grid
-        terminal.cursor_up(7)
-        terminal.cursor_left(14 - sel_x * 2)
-        print(f"{color}⬤\x1b[0m", end="", flush=True)
+        terminal.cursor_up(GRID_HEIGHT + 1)
+        terminal.cursor_left(GRID_WIDTH * 2 - sel_x * 2)
+        print(make_token(color), end="", flush=True)
 
         terminal.cursor_up(2)
         terminal.set_cursor_x(center(len(strip_escapes(msg)), width))
@@ -141,9 +154,9 @@ def place_token(player: str, color: str, grid: list[list[str]]) -> None:
 
         key = get_key()
         if key == "LEFT":
-            sel_x = (sel_x - 1) % 7
+            sel_x = (sel_x - 1) % GRID_WIDTH
         elif key == "RIGHT":
-            sel_x = (sel_x + 1) % 7
+            sel_x = (sel_x + 1) % GRID_WIDTH
         elif key == "\n" and grid[0][sel_x] == " ":
             break
 
@@ -163,26 +176,31 @@ def check_win(grid: list[list[str]]) -> str:
     y: int
     token: str
 
-    for y in range(6):
-        for x in range(4):
+    # vérifie les lignes
+    for y in range(GRID_HEIGHT):
+        for x in range(GRID_WIDTH - 3):
             if grid[y][x] == grid[y][x + 1] == grid[y][x + 2] == grid[y][x + 3] != " ":
                 return grid[y][x]
 
-    for y in range(3):
-        for x in range(7):
+    # vérifie les colonnes
+    for y in range(GRID_HEIGHT - 3):
+        for x in range(GRID_WIDTH):
             if grid[y][x] == grid[y + 1][x] == grid[y + 2][x] == grid[y + 3][x] != " ":
                 return grid[y][x]
 
-    for y in range(3):
-        for x in range(4):
+    # vérifie les diagonales (haut-gauche vers bas-droite)
+    for y in range(GRID_HEIGHT - 3):
+        for x in range(GRID_WIDTH - 3):
             if grid[y][x] == grid[y + 1][x + 1] == grid[y + 2][x + 2] == grid[y + 3][x + 3] != " ":
                 return grid[y][x]
 
-    for y in range(3):
-        for x in range(4):
+    # vérifie les diagonales (bas-gauche vers haut-droite)
+    for y in range(GRID_HEIGHT - 3):
+        for x in range(GRID_WIDTH - 3):
             if grid[y + 3][x] == grid[y + 2][x + 1] == grid[y + 1][x + 2] == grid[y][x + 3] != " ":
                 return grid[y + 3][x]
 
+    # vérifie si la grille est pleine
     if all(all(token != " " for token in line) for line in grid):
         return "t"
 
@@ -217,9 +235,9 @@ def game(player1: str, player2: str) -> None:
         playing, waiting = waiting, playing
 
         if playing == player1:
-            place_token(playing, f"\x1b[{P1_COLOR}m", grid)
+            place_token(playing, P1_COLOR, grid)
         else:
-            place_token(playing, f"\x1b[{P2_COLOR}m", grid)
+            place_token(playing, P2_COLOR, grid)
 
         winner = check_win(grid)
         if winner != "":
@@ -233,7 +251,7 @@ def game(player1: str, player2: str) -> None:
             keys={"ENTER": "Continuer"},
         )
     else:
-        winner, loser = (player1, player2) if winner == f"\x1b[{P1_COLOR}m⬤\x1b[0m" else (player2, player1)
+        winner, loser = (player1, player2) if winner == make_token(P1_COLOR) else (player2, player1)
         add_score(winner, loser)
 
         display.screen(

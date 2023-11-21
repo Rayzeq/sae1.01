@@ -1,6 +1,6 @@
 """Utilitaires pour contrôler le terminal.
 
-La majorité des fonctions de ce module utilisent des codes d'échappement ANSI..
+La majorité des fonctions de ce module utilisent des codes d'échappement ANSI.
 """
 
 from __future__ import annotations
@@ -58,6 +58,11 @@ def restore(fd: int, mode: list[Any]) -> None:
     :type  mode: Liste composée comme ça: [int, int, int, int, int, int, list[bytes | int]]
     """
     termios.tcsetattr(fd, termios.TCSADRAIN, mode)
+
+
+def flush_stdin() -> None:
+    """Supprimme toute les entrées en attente sur l'entrée standard."""
+    termios.tcflush(sys.stdin.fileno(), termios.TCIOFLUSH)
 
 
 def get_size() -> tuple[int, int]:
