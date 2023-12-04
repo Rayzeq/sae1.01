@@ -15,6 +15,7 @@ import terminal
 from display import center, display_at, print_at
 from terminal import bold, get_key, gray, green, invert, strip_escapes
 
+SCOREBOARD_WIDTH = 40
 TITLE = [
     "   _______  _________  _____  ____  ___  ___  ___  ____",
     "  / __/ _ \\/  _/ __/ |/ / _ \\/ __/ |_  |/ _ \\|_  ||_  /",
@@ -118,7 +119,12 @@ def display_main_menu(options: list[str], selected: int) -> None:
     display_at(TITLE, center(len(TITLE[0]), width), 8)
     display.keys_help({"q": "Quitter", "↑ / ↓": "Choisir une option", "ENTER": "Valider"})
 
-    display_all_scoreboards(width - 40, 40, height, ["PLUS OU MOINS", "ALLUME-LE", "MORPION", "PUISSANCE 4"])
+    display_all_scoreboards(
+        width - SCOREBOARD_WIDTH,
+        SCOREBOARD_WIDTH,
+        height,
+        ["PLUS OU MOINS", "ALLUME-LE", "MORPION", "PUISSANCE 4"],
+    )
 
     x = center(max_width, width)
     y = center(len(options), height)
