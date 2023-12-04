@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Dict, List, Tuple
+
 import display
 import terminal
 from scores import get_scores, set_scores
@@ -23,7 +25,7 @@ def add_score(winner: str, loser: str, *, tie: bool = False) -> None:
     :param loser:  Le nom du perdant
     :param tie:    Vrai si la partie s'est terminée par une égalité.
     """
-    scores: dict[str, list[float]]
+    scores: Dict[str, List[float]]
 
     scores = dict(get_scores(SCOREBOARD))
     if winner not in scores:
@@ -39,7 +41,7 @@ def add_score(winner: str, loser: str, *, tie: bool = False) -> None:
     set_scores(SCOREBOARD, scores.items())
 
 
-def get_sorted_scores() -> list[tuple[str, str]]:
+def get_sorted_scores() -> List[Tuple[str, str]]:
     """Retourne les scores triés par ordre décroissant (un score plus grand est meilleur).
 
     Le score d'un joueur représente son pourcentage de victoires.
@@ -47,12 +49,12 @@ def get_sorted_scores() -> list[tuple[str, str]]:
     :returns: Les scores triés.
     :rtype:   Une liste de tuples (nom du joueur, score).
     """
-    score_lines: list[tuple[str, float]]
+    score_lines: List[Tuple[str, float]]
     player: str
     wins: float
     total: float
     winrate: float
-    x: tuple[str, float]
+    x: Tuple[str, float]
 
     score_lines = []
     for player, (wins, total) in get_scores(SCOREBOARD):
@@ -63,7 +65,7 @@ def get_sorted_scores() -> list[tuple[str, str]]:
     return [(player, f"{winrate:.2f}") for player, winrate in score_lines]
 
 
-def display_grid(message: str, grid: list[list[str]]) -> None:
+def display_grid(message: str, grid: List[List[str]]) -> None:
     """Affiche la grille du jeu.
 
     :param message: Un message à afficher au dessus de la grille
@@ -71,8 +73,8 @@ def display_grid(message: str, grid: list[list[str]]) -> None:
     """
     LINE_LENGHT: int = 11
 
-    line: list[str]
-    lines: list[str] = []
+    line: List[str]
+    lines: List[str] = []
 
     for line in grid:
         lines.append("│".join(line))
@@ -87,7 +89,7 @@ def display_grid(message: str, grid: list[list[str]]) -> None:
     print(message, end="", flush=True)
 
 
-def place_symbol(player: str, symbol: str, grid: list[list[str]]) -> None:
+def place_symbol(player: str, symbol: str, grid: List[List[str]]) -> None:
     """Demande au joueur `player` de placer son symbole `symbol` dans la grille.
 
     :param player: Le joueur qui doit placer son symbol
@@ -118,7 +120,7 @@ def place_symbol(player: str, symbol: str, grid: list[list[str]]) -> None:
     grid[sel_y][sel_x] = f" {symbol} "
 
 
-def check_win(grid: list[list[str]]) -> str:
+def check_win(grid: List[List[str]]) -> str:
     """Vérifie si un joueur a gagné.
 
     :param grid: La grille de jeu
@@ -127,7 +129,7 @@ def check_win(grid: list[list[str]]) -> str:
         - "t" si la partie s'est terminée par une égalité
         - "" si la partie n'est pas terminée
     """
-    line: list[str]
+    line: List[str]
     x: int
     symbol: str
 
@@ -157,7 +159,7 @@ def game(player1: str, player2: str) -> None:
     :param player1: Le nom du joueur 1 (celui qui commence)
     :param player2: Le nom du joueur 2
     """
-    grid: list[list[str]]
+    grid: List[List[str]]
     playing: str
     waiting: str
     winner: str

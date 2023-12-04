@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import time
+from typing import List, Tuple
 
 import display
 import terminal
@@ -33,7 +34,7 @@ def add_score(winner: str, loser: str, *, tie: bool = False) -> None:
     :param loser:  Le nom du perdant
     :param tie:    Vrai si la partie s'est terminée par une égalité.
     """
-    scores: dict[str, list[float]]
+    scores: dict[str, List[float]]
 
     scores = dict(get_scores(SCOREBOARD))
     if winner not in scores:
@@ -49,7 +50,7 @@ def add_score(winner: str, loser: str, *, tie: bool = False) -> None:
     set_scores(SCOREBOARD, scores.items())
 
 
-def get_sorted_scores() -> list[tuple[str, str]]:
+def get_sorted_scores() -> List[Tuple[str, str]]:
     """Retourne les scores triés par ordre décroissant (un score plus grand est meilleur).
 
     Le score d'un joueur représente son pourcentage de victoires.
@@ -57,12 +58,12 @@ def get_sorted_scores() -> list[tuple[str, str]]:
     :returns: Les scores triés.
     :rtype:   Une liste de tuples (nom du joueur, score).
     """
-    score_lines: list[tuple[str, float]]
+    score_lines: List[Tuple[str, float]]
     player: str
     wins: float
     total: float
     winrate: float
-    x: tuple[str, float]
+    x: Tuple[str, float]
 
     score_lines = []
     for player, (wins, total) in get_scores(SCOREBOARD):
@@ -73,13 +74,13 @@ def get_sorted_scores() -> list[tuple[str, str]]:
     return [(player, f"{winrate:.2f}") for player, winrate in score_lines]
 
 
-def display_grid(grid: list[list[str]]) -> None:
+def display_grid(grid: List[List[str]]) -> None:
     """Affiche la "grille" du jeu.
 
     :param grid:    La grille du jeu
     """
-    line: list[str]
-    lines: list[str] = []
+    line: List[str]
+    lines: List[str] = []
 
     for line in grid:
         lines.append("│" + "│".join(line) + "│")
@@ -97,7 +98,7 @@ def make_token(color: str) -> str:
     return f"\x1b[{color}m{TOKEN}\x1b[0m"
 
 
-def drop_token(x: int, color: str, grid: list[list[str]]) -> None:
+def drop_token(x: int, color: str, grid: List[List[str]]) -> None:
     """Fait tomber un jeton dans la colonne `x` de la grille `grid`.
 
     Cette fonction joue une animation pour faire tomber le jeton ET modifie la grille.
@@ -125,7 +126,7 @@ def drop_token(x: int, color: str, grid: list[list[str]]) -> None:
     terminal.flush_stdin()
 
 
-def place_token(player: str, color: str, grid: list[list[str]]) -> None:
+def place_token(player: str, color: str, grid: List[List[str]]) -> None:
     """Demande au joueur `player` de placer un jeton dans la grille.
 
     :param player: Le joueur qui doit placer un jeton
@@ -163,7 +164,7 @@ def place_token(player: str, color: str, grid: list[list[str]]) -> None:
     drop_token(sel_x, color, grid)
 
 
-def check_win(grid: list[list[str]]) -> str:
+def check_win(grid: List[List[str]]) -> str:
     r"""Vérifie si un joueur a gagné.
 
     :param grid: La grille de jeu
@@ -215,7 +216,7 @@ def game(player1: str, player2: str) -> None:
     :param player1: Le nom du joueur 1 (celui qui commence)
     :param player2: Le nom du joueur 2
     """
-    grid: list[list[str]]
+    grid: List[List[str]]
     playing: str
     waiting: str
     winner: str

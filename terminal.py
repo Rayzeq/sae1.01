@@ -10,10 +10,10 @@ import re
 import sys
 import termios
 import tty
-from typing import Any
+from typing import Any, List, Tuple
 
 
-def make_raw(fd: int) -> list[Any]:
+def make_raw(fd: int) -> List[Any]:
     """Passe le terminal donné par `fd` en mode brute.
 
     Dans ce mode, le caractères entrés par l'utilisateur ne sont pas affichés sur le terminal
@@ -22,12 +22,12 @@ def make_raw(fd: int) -> list[Any]:
     :param fd: Le file descriptor du terminal (généralement `sys.stdin.fileno()`)
 
     :returns:  Retourne le mode dans lequel était le terminal avant de passer en mode brute.
-    :rtype:    Liste composée comme ça: [int, int, int, int, int, int, list[bytes | int]]
+    :rtype:    Liste composée comme ça: [int, int, int, int, int, int, List[bytes | int]]
     """
     # the type is from the signature of termios.tcgetattr
-    original_mode: list[Any]
+    original_mode: List[Any]
 
-    new_mode: list[Any]
+    new_mode: List[Any]
 
     original_mode = termios.tcgetattr(fd)
     # copy old attributes
@@ -50,12 +50,12 @@ def make_raw(fd: int) -> list[Any]:
     return original_mode
 
 
-def restore(fd: int, mode: list[Any]) -> None:
+def restore(fd: int, mode: List[Any]) -> None:
     """Restaure le terminal donné par `fd` dans le mode `mode`.
 
     :param fd:   Le file descriptor du terminal (généralement `sys.stdin.fileno()`)
     :param mode: Le mode dans lequel était le terminal était avant d'être passé en mode brute.
-    :type  mode: Liste composée comme ça: [int, int, int, int, int, int, list[bytes | int]]
+    :type  mode: Liste composée comme ça: [int, int, int, int, int, int, List[bytes | int]]
     """
     termios.tcsetattr(fd, termios.TCSADRAIN, mode)
 
@@ -65,7 +65,7 @@ def flush_stdin() -> None:
     termios.tcflush(sys.stdin.fileno(), termios.TCIOFLUSH)
 
 
-def get_size() -> tuple[int, int]:
+def get_size() -> Tuple[int, int]:
     """Retourne la taille du terminal dans le format (largeur, hauteur).
 
     :returns: La taille du terminal

@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import sys
-from typing import Any
+from typing import Any, List, Tuple
 
 import allumettes
 import display
@@ -33,7 +33,7 @@ def display_scoreboard(x: int, y: int, width: int, height: int, name: str) -> No
     :param height: La hauteur attribuée au tableau des scores
     :param name:   Le nom du jeu pour lequel le tableau des scores doit être affiché
     """
-    scores: list[tuple[str, str]]
+    scores: List[Tuple[str, str]]
     i: int
     score: str
     score_width: int
@@ -62,7 +62,7 @@ def display_scoreboard(x: int, y: int, width: int, height: int, name: str) -> No
         print_at(x + 1, y + height - 1, gray("…".center(width - 1)))
 
 
-def display_all_scoreboards(x: int, width: int, height: int, scoreboards: list[str]) -> None:
+def display_all_scoreboards(x: int, width: int, height: int, scoreboards: List[str]) -> None:
     """Affiche tout les tableaux des scores.
 
     :param x:           La colonne à laquelle seront placés les tableaux des scores
@@ -96,7 +96,7 @@ def display_all_scoreboards(x: int, width: int, height: int, scoreboards: list[s
     display_scoreboard(x, y, width, last_scoreboard_height, scoreboards[-1])
 
 
-def display_main_menu(options: list[str], selected: int) -> None:
+def display_main_menu(options: List[str], selected: int) -> None:
     """Affiche le menu principal (avec les tableaux des scores).
 
     :param options:  Les options du menu principal
@@ -137,7 +137,7 @@ def display_main_menu(options: list[str], selected: int) -> None:
     print(end="", flush=True)
 
 
-def main_menu(options: list[str]) -> int:
+def main_menu(options: List[str]) -> int:
     """Affiche le menu principal et gère les entrées de l'utilisateur.
 
     :param options: Les options du menu principale
@@ -174,7 +174,7 @@ def login_screen(player: str, player1: str | None = None) -> str:
         return display.prompt(f"NOM DU {bold(player)}", invalid=[player1])
 
 
-def get_player_roles(question: str, player1: str, player2: str, rules: list[str]) -> tuple[str, str]:
+def get_player_roles(question: str, player1: str, player2: str, rules: List[str]) -> Tuple[str, str]:
     """Obtient les rôles des joueurs.
 
     :param question: La question a afficher (quel rôle est en train d'être choisi)
@@ -186,7 +186,7 @@ def get_player_roles(question: str, player1: str, player2: str, rules: list[str]
     """
     p1: str
     p2: str
-    content: list[str]
+    content: List[str]
     width: int
     height: int
     y: int
@@ -267,7 +267,7 @@ def real_main() -> None:
 def main() -> None:
     """Cette fonction passe le terminal en mode "raw" et appelle `real_main`, puis repasse le terminal en mode normal avant la fin du programme."""
     screen: int
-    mode: list[Any]
+    mode: List[Any]
 
     screen = sys.stdin.fileno()
     mode = terminal.make_raw(screen)

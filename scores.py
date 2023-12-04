@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, List, Tuple
 
 SCORES_PATH = Path(__file__).parent.resolve() / "scores"
-ScoreLine = tuple[str, list[float]]
+ScoreLine = Tuple[str, List[float]]
 
 
-def get_scores(game: str) -> list[ScoreLine]:
+def get_scores(game: str) -> List[ScoreLine]:
     """Retourne le contenu du tableau des scores pour le jeu nommé `game`.
 
     Chaque ligne du fichier des scores est composé du nom du joueur suivi d'un nombre
@@ -16,11 +16,11 @@ def get_scores(game: str) -> list[ScoreLine]:
     :param game: Le nom du jeu.
     :returns:    Les scores stockés pour ce jeu.
     """
-    lines: list[str]
-    scores: list[ScoreLine] = []
+    lines: List[str]
+    scores: List[ScoreLine] = []
     path: Path
     name: str
-    numbers: list[str]
+    numbers: List[str]
     line: str
 
     SCORES_PATH.mkdir(parents=True, exist_ok=True)
@@ -47,7 +47,7 @@ def set_scores(game: str, scores: Iterable[ScoreLine]) -> None:
     """
     path: Path
     name: str
-    numbers: list[float]
+    numbers: List[float]
     numbers_str: str
 
     SCORES_PATH.mkdir(parents=True, exist_ok=True)
