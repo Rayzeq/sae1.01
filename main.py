@@ -240,29 +240,28 @@ def real_main() -> None:
 
     while True:
         selection = main_menu(["PLUS OU MOINS", "ALLUME-LE", "MORPION", "PUISSANCE 4", "QUITTER"])
-        match selection:
-            case 0:
-                role1, role2 = get_player_roles("Qui fera deviner à l'autre ?", player1, player2, plus_minus.RULES)
-                if role1 == "":
-                    continue
-                plus_minus.game(role1, role2)
-            case 1:
-                role1, role2 = get_player_roles("Qui commence ?", player1, player2, allumettes.RULES)
-                if role1 == "":
-                    continue
-                allumettes.game(role1, role2)
-            case 2:
-                role1, role2 = get_player_roles("Qui commence ?", player1, player2, morpion.RULES)
-                if role1 == "":
-                    continue
-                morpion.game(role1, role2)
-            case 3:
-                role1, role2 = get_player_roles("Qui commence ?", player1, player2, pow4.RULES)
-                if role1 == "":
-                    continue
-                pow4.game(role1, role2)
-            case -1 | 4:
-                break
+        if selection == 0:
+            role1, role2 = get_player_roles("Qui fera deviner à l'autre ?", player1, player2, plus_minus.RULES)
+            if role1 == "":
+                continue
+            plus_minus.game(role1, role2)
+        elif selection == 1:
+            role1, role2 = get_player_roles("Qui commence ?", player1, player2, allumettes.RULES)
+            if role1 == "":
+                continue
+            allumettes.game(role1, role2)
+        elif selection == 2:
+            role1, role2 = get_player_roles("Qui commence ?", player1, player2, morpion.RULES)
+            if role1 == "":
+                continue
+            morpion.game(role1, role2)
+        elif selection == 3:
+            role1, role2 = get_player_roles("Qui commence ?", player1, player2, pow4.RULES)
+            if role1 == "":
+                continue
+            pow4.game(role1, role2)
+        elif selection in (-1, 4):
+            break
 
 
 def main() -> None:

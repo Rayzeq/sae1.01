@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Iterable, TypeAlias
+from typing import Iterable
 
 SCORES_PATH = Path(__file__).parent.resolve() / "scores"
-ScoreLine: TypeAlias = tuple[str, list[float]]
+ScoreLine = tuple[str, list[float]]
 
 
 def get_scores(game: str) -> list[ScoreLine]:
