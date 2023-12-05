@@ -133,14 +133,17 @@ def check_win(grid: List[List[str]]) -> str:
     x: int
     symbol: str
 
+    # check lines
     for line in grid:
         if line[0] == line[1] == line[2] != "   ":
             return line[0].strip()
 
+    # check columns
     for x in range(3):
         if grid[0][x] == grid[1][x] == grid[2][x] != "   ":
             return grid[0][x].strip()
 
+    # check diagonals
     if grid[0][0] == grid[1][1] == grid[2][2] != "   ":
         return grid[0][0].strip()
 
