@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Dict, List, Tuple
-
 import display
 import terminal
 from display import center
@@ -25,7 +23,7 @@ def add_score(winner: str, loser: str) -> None:
     :param winner: Le nom du gagnant
     :param loser:  Le nom du perdant
     """
-    scores: Dict[str, List[float]]
+    scores: dict[str, list[float]]
 
     scores = dict(get_scores(SCOREBOARD))
     if winner not in scores:
@@ -40,7 +38,7 @@ def add_score(winner: str, loser: str) -> None:
     set_scores(SCOREBOARD, scores.items())
 
 
-def get_sorted_scores() -> List[Tuple[str, str]]:
+def get_sorted_scores() -> list[tuple[str, str]]:
     """Retourne les scores triés par ordre décroissant (un score plus grand est meilleur).
 
     Le score d'un joueur représente son pourcentage de victoires.
@@ -48,12 +46,12 @@ def get_sorted_scores() -> List[Tuple[str, str]]:
     :returns: Les scores triés.
     :rtype:   Une liste de tuples (nom du joueur, score).
     """
-    score_lines: List[Tuple[str, float]]
+    score_lines: list[tuple[str, float]]
     player: str
     wins: float
     total: float
     winrate: float
-    x: Tuple[str, float]
+    x: tuple[str, float]
 
     score_lines = []
     for player, (wins, total) in get_scores(SCOREBOARD):
@@ -73,7 +71,7 @@ def game(player1: str, player2: str) -> None:
     matches: int
     playing: str
     waiting: str
-    matches_display: List[Tuple[int, int, str]]
+    matches_display: list[tuple[int, int, str]]
     width: int
     height: int
     y: int

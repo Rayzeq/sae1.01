@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import List, Tuple
-
 import display
 import terminal
 from scores import ScoreLine, get_scores, set_scores
@@ -17,7 +15,7 @@ RULES = [
 ]
 
 
-def prompt_int_hideable(message: str, decorations: List[Tuple[int, int, str]] = []) -> int:
+def prompt_int_hideable(message: str, decorations: list[tuple[int, int, str]] = []) -> int:
     """Demande à l'utilisateur de rentrer un nombre qui peut être caché si nécessaire.
 
     :param message:     Le message à afficher
@@ -62,7 +60,7 @@ def prompt_int_hideable(message: str, decorations: List[Tuple[int, int, str]] = 
             return int(number)
 
 
-def prompt_plus_minus(player1: str, player2: str, guess: int, decorations: List[Tuple[int, int, str]] = []) -> str:
+def prompt_plus_minus(player1: str, player2: str, guess: int, decorations: list[tuple[int, int, str]] = []) -> str:
     """Demande au joueur qui fait deviner si son nombre est plus grand, plus petit, ou égal au nombre proposé.
 
     :param player1:     Le joueur qui fait deviner
@@ -96,7 +94,7 @@ def add_score(player: str, guess_count: int, maximum: int) -> None:
     :param guess_count: Le nombre d'essais dont le joueur a eu besoin
     :param maximum:     La borne maximum du nombre à deviner
     """
-    scores: List[ScoreLine]
+    scores: list[ScoreLine]
     score: float
 
     score = round(guess_count / maximum * 100, 3)
@@ -107,16 +105,16 @@ def add_score(player: str, guess_count: int, maximum: int) -> None:
     set_scores(SCOREBOARD, scores)
 
 
-def get_sorted_scores() -> List[Tuple[str, str]]:
+def get_sorted_scores() -> list[tuple[str, str]]:
     """Retourne les scores triés par ordre croissant (un score plus petit est meilleur).
 
     :returns: Les scores triés.
     :rtype:   Une liste de tuples (nom du joueur, score).
     """
-    score_lines: List[ScoreLine]
+    score_lines: list[ScoreLine]
     player: str
     score: float
-    scores: List[Tuple[str, str]] = []
+    scores: list[tuple[str, str]] = []
 
     score_lines = get_scores(SCOREBOARD)
     score_lines.sort(key=lambda x: x[1][0])
@@ -139,7 +137,7 @@ def game(player1: str, player2: str) -> None:
     guess_count: int = 0
     answer: str
     p1_lives: int = 2
-    decorations: List[Tuple[int, int, str]] = []
+    decorations: list[tuple[int, int, str]] = []
 
     max = display.prompt_int(f"{bold(player1)} choisit la borne maximum (minimum 10)", 10)
     decorations.append((3, 2, f"Maximum: {max}"))

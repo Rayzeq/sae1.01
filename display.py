@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Dict, List, Tuple
-
 import terminal
 from terminal import get_key, green, red, strip_escapes
 
@@ -19,7 +17,7 @@ def print_at(x: int, y: int, text: str) -> None:
     print(text, end="")
 
 
-def display_at(text: List[str], x: int, y: int) -> None:
+def display_at(text: list[str], x: int, y: int) -> None:
     """Écrit un bloc de texte sur plusieurs lignes avec le coin en haut à gauche en x,y.
 
     Le texte ne sera affiché qu'après avoir flush stdout.
@@ -86,7 +84,7 @@ def main_frame() -> None:
     print_at(1, height + 1, "╚" + "═" * (width - 2) + "╝")
 
 
-def keys_help(keys: Dict[str, str]) -> None:
+def keys_help(keys: dict[str, str]) -> None:
     """Affiche l'aide des touches en bas à gauche du terminal.
 
     L'aide ne sera affiché qu'après avoir flush stdout.
@@ -104,10 +102,10 @@ def keys_help(keys: Dict[str, str]) -> None:
 
 
 def screen(
-    content: List[str],
+    content: list[str],
     *,
-    keys: Dict[str, str] = {},
-    decorations: List[Tuple[int, int, str]] = [],
+    keys: dict[str, str] = {},
+    decorations: list[tuple[int, int, str]] = [],
     center_all: bool = False,
 ) -> None:
     """Affiche un écran.
@@ -156,7 +154,7 @@ def screen(
     print(end="", flush=True)
 
 
-def prompt(question: str, *, decorations: List[Tuple[int, int, str]] = [], invalid: List[str] = []) -> str:
+def prompt(question: str, *, decorations: list[tuple[int, int, str]] = [], invalid: list[str] = []) -> str:
     """Demande à l'utilisateur de rentrer un texte.
 
     :param question:    La question à afficher.
@@ -211,7 +209,7 @@ def prompt_int(
     minimum: int | None = None,
     maximum: int | None = None,
     *,
-    decorations: List[Tuple[int, int, str]] = [],
+    decorations: list[tuple[int, int, str]] = [],
 ) -> int:
     """Demande à l'utilisateur de rentrer un nombre.
 
@@ -225,7 +223,7 @@ def prompt_int(
     key: str
     number: str = ""
     prompt: str
-    keys: Dict[str, str] = {"ENTER": "Valider"}
+    keys: dict[str, str] = {"ENTER": "Valider"}
 
     terminal.show_cursor()
 
