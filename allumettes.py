@@ -76,9 +76,6 @@ def game(player1: str, player2: str) -> None:
     height: int
     y: int
 
-    width, height = terminal.get_size()
-    y = height // 4 - 6 // 2
-
     matches = display.prompt_int(
         f"Avec quel nombre d'allumettes la partie va commencer (entre {bold(str(15))} et {bold(str(30))}) ?",
         15,
@@ -88,6 +85,9 @@ def game(player1: str, player2: str) -> None:
     playing, waiting = player2, player1
     while matches > 0:
         playing, waiting = waiting, playing
+
+        width, height = terminal.get_size()
+        y = height // 4 - 6 // 2
 
         matches_display = [
             (center(2 * matches, width), y + 0, "▆ " * matches),
