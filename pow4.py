@@ -137,11 +137,11 @@ def place_token(player: str, color: str, grid: list[list[str]]) -> None:
     msg: str
     width: int
 
-    width, _ = terminal.get_size()
-
     while True:
         display_grid(grid)
         msg = f"{bold(player)}, à toi de jouer !"
+
+        width, _ = terminal.get_size()
 
         # here the cursor is at the end of the last line of the grid
         terminal.cursor_up(GRID_HEIGHT + 1)

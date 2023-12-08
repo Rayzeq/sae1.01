@@ -196,8 +196,6 @@ def get_player_roles(question: str, player1: str, player2: str, rules: list[str]
 
     p1, p2 = player1, player2
     content = [bold(question), "", ""]
-    width, height = terminal.get_size()
-    y = center(len(rules), height // 2)
 
     while True:
         content[1] = p1
@@ -209,6 +207,9 @@ def get_player_roles(question: str, player1: str, player2: str, rules: list[str]
             content[2] = "\b\b" + green("> ") + invert(p2)
 
         display.screen(content, keys={"q": "Écran titre", "ENTER": "Valider"})
+
+        width, height = terminal.get_size()
+        y = center(len(rules), height // 2)
 
         for i, line in enumerate(rules):
             print_at(center(len(line), width), y + i, line)
