@@ -174,6 +174,13 @@ def login_screen(player: str, player1: str | None = None) -> str:
         return display.prompt_player(f"NOM DU {bold(player)}", invalid=[player1])
 
 
+def get_display_name(name: str) -> str:
+    if name.startswith("\t"):
+        return f"Bot {name[1]}"
+    else:
+        return name
+
+
 def get_player_roles(question: str, player1: str, player2: str, rules: list[str]) -> tuple[str, str]:
     """Obtient les rôles des joueurs.
 
@@ -198,13 +205,13 @@ def get_player_roles(question: str, player1: str, player2: str, rules: list[str]
     content = [bold(question), "", ""]
 
     while True:
-        content[1] = p1
-        content[2] = p2
+        content[1] = get_display_name(p1)
+        content[2] = get_display_name(p2)
 
         if player1 == p1:
-            content[1] = "\b\b" + green("> ") + invert(p1)
+            content[1] = "\b\b" + green("> ") + invert(content[1])
         if player1 == p2:
-            content[2] = "\b\b" + green("> ") + invert(p2)
+            content[2] = "\b\b" + green("> ") + invert(content[2])
 
         display.screen(content, keys={"q": "Écran titre", "ENTER": "Valider"})
 

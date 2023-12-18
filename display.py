@@ -214,7 +214,7 @@ def prompt_player(question: str, *, decorations: list[tuple[int, int, str]] = []
             value = value[:-1]
         elif key == "F1":
             terminal.hide_cursor()
-            return "\t" + str(prompt_difficulty_level())
+            return "\t" + str(len(invalid) + 1) + str(prompt_difficulty_level())
         elif key == "\n" and value != "" and value not in invalid:
             terminal.hide_cursor()
             return value
