@@ -212,6 +212,14 @@ def get_key() -> str:
             next_char = "RIGHT"
         elif next_char == "D":  # left arrow
             next_char = "LEFT"
+        elif next_char == "P":
+            next_char = "F1"
+        elif next_char == "Q":
+            next_char = "F2"
+        elif next_char == "R":
+            next_char = "F3"
+        elif next_char == "S":
+            next_char = "F4"
     elif next_char == "\x7f":
         next_char = "BACKSPACE"
 

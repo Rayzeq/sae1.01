@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import display
 import terminal
-from terminal import get_key, green, red, strip_escapes
+from terminal import bold, get_key, green, red, strip_escapes
 
 
 def print_at(x: int, y: int, text: str) -> None:
@@ -154,14 +155,38 @@ def screen(
     print(end="", flush=True)
 
 
-def prompt(question: str, *, decorations: list[tuple[int, int, str]] = [], invalid: list[str] = []) -> str:
-    """Demande à l'utilisateur de rentrer un texte.
+def prompt_difficulty_level() -> int:
+    prompt = "Quel sera le niveau de difficulté du bot ?"
+    options = ["Facile", "Moyen", "Difficile"]
+    selected = 0
 
-    :param question:    La question à afficher.
-    :param decorations: Même chose que dans `screen`.
-    :param invalid:     La liste des valeurs qui ne serons pas acceptées.
-    :returns:           Le texte que l'utilisateur a entré.
-    """
+    while True:
+        terminal.clear()
+        width, height = terminal.get_size()
+
+        x = center(len("Difficile"), width)
+        y = center(len(options) + 2, height)
+
+        print_at(center(len(prompt), width), y, bold(prompt))
+        for i, line in enumerate(options):
+            if i == selected:
+                print_at(x - 2, y + 2 + i, green("> ") + line)
+            else:
+                print_at(x, y + 2 + i, line)
+
+        display.keys_help({"↑ / ↓": "Choisir une option", "ENTER": "Valider"})
+        print("", end="", flush=True)
+
+        key = get_key()
+        if key == "UP":
+            selected = (selected - 1) % len(options)
+        elif key == "DOWN":
+            selected = (selected + 1) % len(options)
+        elif key == "\n":
+            return selected
+
+
+def prompt_player(question: str, *, decorations: list[tuple[int, int, str]] = [], invalid: list[str] = []) -> str:
     key: str
     value: str = ""
     prompt: str
@@ -175,7 +200,11 @@ def prompt(question: str, *, decorations: list[tuple[int, int, str]] = [], inval
         else:
             prompt += green("> ")
 
-        screen([question, prompt + value], keys={"ENTER": "Valider"}, decorations=decorations)
+        screen(
+            [question, prompt + value],
+            keys={"ENTER": "Valider", "F1": "Pas de joueur (un bot jouera)"},
+            decorations=decorations,
+        )
 
         key = get_key()
 
@@ -183,6 +212,9 @@ def prompt(question: str, *, decorations: list[tuple[int, int, str]] = [], inval
             value += key
         elif key == "BACKSPACE":
             value = value[:-1]
+        elif key == "F1":
+            terminal.hide_cursor()
+            return "\t" + str(prompt_difficulty_level())
         elif key == "\n" and value != "" and value not in invalid:
             terminal.hide_cursor()
             return value

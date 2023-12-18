@@ -169,9 +169,9 @@ def login_screen(player: str, player1: str | None = None) -> str:
     :returns:       Le nom que le joueur à choisis
     """
     if player1 is None:
-        return display.prompt(f"NOM DU {bold(player)}", invalid=[])
+        return display.prompt_player(f"NOM DU {bold(player)}", invalid=[])
     else:
-        return display.prompt(f"NOM DU {bold(player)}", invalid=[player1])
+        return display.prompt_player(f"NOM DU {bold(player)}", invalid=[player1])
 
 
 def get_player_roles(question: str, player1: str, player2: str, rules: list[str]) -> tuple[str, str]:
