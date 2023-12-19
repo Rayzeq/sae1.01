@@ -13,6 +13,7 @@ import plus_minus
 import pow4
 import terminal
 from display import center, display_at, print_at
+from players import get_display_name
 from terminal import bold, get_key, gray, green, invert, strip_escapes
 
 SCOREBOARD_WIDTH = 40
@@ -172,13 +173,6 @@ def login_screen(player: str, player1: str | None = None) -> str:
         return display.prompt_player(f"NOM DU {bold(player)}", invalid=[])
     else:
         return display.prompt_player(f"NOM DU {bold(player)}", invalid=[player1])
-
-
-def get_display_name(name: str) -> str:
-    if name.startswith("\t"):
-        return f"Bot {name[1]}"
-    else:
-        return name
 
 
 def get_player_roles(question: str, player1: str, player2: str, rules: list[str]) -> tuple[str, str]:
