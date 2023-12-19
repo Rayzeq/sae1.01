@@ -1,7 +1,12 @@
 from __future__ import annotations
 
+import random
+from random import randint
+
 import display
 import terminal
+from display import waiting_screen
+from players import difficulty_level, get_display_name
 from scores import ScoreLine, get_scores, set_scores
 from terminal import bold, get_key, green, red
 
@@ -94,6 +99,9 @@ def add_score(player: str, guess_count: int, maximum: int) -> None:
     :param guess_count: Le nombre d'essais dont le joueur a eu besoin
     :param maximum:     La borne maximum du nombre à deviner
     """
+    if player[0] == "\t":
+        return
+
     scores: list[ScoreLine]
     score: float
 
@@ -125,6 +133,31 @@ def get_sorted_scores() -> list[tuple[str, str]]:
     return scores
 
 
+def auto_guess(bot_name: str) -> int:
+    diff_level = difficulty_level(bot_name)
+    min, max = map(int, bot_name.split(",")[1:])
+
+    if diff_level == 1:  # niveau de difficulté moyen
+        # le bot à 1 chance sur 2 de faire le meilleur choix
+        diff_level = random.choice((0, 2))
+
+    if diff_level == 0:  # niveau de difficulté facile
+        return randint(min, max)
+    else:  # niveau de difficulté difficile
+        return min + (max - min) // 2
+
+
+def update_bot(bot: str, guess: int, number: int) -> str:
+    base_name, min, max = bot.split(",")
+    if number > guess:
+        min = str(guess + 1)
+    elif number < guess:
+        max = str(guess - 1)
+    # si number == guess, le bot a gagné et il n'y a pas besoin de le mettre à jour
+
+    return f"{base_name},{min},{max}"
+
+
 def game(player1: str, player2: str) -> None:
     """Lance une partie de plus ou moins et sauvegarde le score à la fin de la partie.
 
@@ -137,37 +170,66 @@ def game(player1: str, player2: str) -> None:
     guess_count: int = 0
     answer: str
     p1_lives: int = 2
+    diff_level: int
     decorations: list[tuple[int, int, str]] = []
 
-    max = display.prompt_int(f"{bold(player1)} choisit la borne maximum (minimum 10)", 10)
+    if player1[0] == "\t":
+        diff_level = difficulty_level(player1)
+        if diff_level == 0:
+            max = randint(10, 100)
+        elif diff_level == 1:
+            max = randint(50, 150)
+        else:
+            max = randint(100, 200)
+        waiting_screen(f"{bold(get_display_name(player1))} a choisi {bold(str(max))} comme borne maximum", decorations)
+    else:
+        max = display.prompt_int(f"{bold(get_display_name(player1))} choisit la borne maximum (minimum 10)", 10)
     decorations.append((3, 2, f"Maximum: {max}"))
 
-    number = prompt_int_hideable(f"{bold(player1)} choisit un nombre", decorations)
-    while number > max:
-        number = prompt_int_hideable("Votre nombre ne peut pas dépasser le nombre maximum", decorations)
+    if player1[0] == "\t":
+        number = randint(0, max)
+        waiting_screen(f"{bold(get_display_name(player1))} a choisi son nombre", decorations)
+    else:
+        number = prompt_int_hideable(f"{bold(get_display_name(player1))} choisit un nombre", decorations)
+        while number > max:
+            number = prompt_int_hideable("Votre nombre ne peut pas dépasser le nombre maximum", decorations)
 
     decorations.append((3, 3, f"Nombre d'essais: {bold(str(guess_count))}"))
-    decorations.append((3, 4, f"Vie(s) de {bold(player1)}: {bold(str(p1_lives))}"))
+    decorations.append((3, 4, f"Vie(s) de {bold(get_display_name(player1))}: {bold(str(p1_lives))}"))
+
+    if player2[0] == "\t":
+        # on ajoute le maximum et le minimum connu au nom du bot
+        player2 += f",0,{max}"
 
     while (guess != number) and (p1_lives > 0):
         guess_count += 1
-        guess = display.prompt_int(f"{bold(player2)} devine", decorations=decorations)
+        if player2[0] == "\t":
+            guess = auto_guess(player2)
+            waiting_screen(f"{bold(get_display_name(player2))} à deviné: {bold(str(guess))}", decorations)
+        else:
+            guess = display.prompt_int(f"{bold(get_display_name(player2))} devine", decorations=decorations)
 
         decorations[1] = (3, 3, f"Nombre d'essais: {bold(str(guess_count))}")
 
-        answer = prompt_plus_minus(player1, player2, guess, decorations)
-        if (
-            (number > guess and answer != "+")
-            or (number < guess and answer != "-")
-            or (number == guess and answer != "=")
-        ):
-            p1_lives -= 1
+        if player1[0] != "\t":
+            answer = prompt_plus_minus(get_display_name(player1), get_display_name(player2), guess, decorations)
+            if (
+                (number > guess and answer != "+")
+                or (number < guess and answer != "-")
+                or (number == guess and answer != "=")
+            ):
+                p1_lives -= 1
 
-        decorations[2] = (3, 4, f"Vie(s) de {bold(player1)}: {bold(str(p1_lives))}")
+        if player2[0] == "\t":
+            player2 = update_bot(player2, guess, number)
+
+        decorations[2] = (3, 4, f"Vie(s) de {bold(get_display_name(player1))}: {bold(str(p1_lives))}")
 
         if p1_lives == 0:
             display.screen(
-                [f"{bold(player1)} s'est trompé deux fois, {bold(player2)} gagne !"],
+                [
+                    f"{bold(get_display_name(player1))} s'est trompé deux fois, {bold(get_display_name(player2))} gagne !",
+                ],
                 keys={"ENTER": "Écran titre"},
                 decorations=decorations,
             )
@@ -185,7 +247,7 @@ def game(player1: str, player2: str) -> None:
             )
         else:
             display.screen(
-                [f"Bravo ! {bold(player2)} a trouvé en {bold(str(guess_count))} essais"],
+                [f"Bravo ! {bold(get_display_name(player2))} a trouvé en {bold(str(guess_count))} essais"],
                 keys={"ENTER": "Continuer"},
                 decorations=decorations,
             )

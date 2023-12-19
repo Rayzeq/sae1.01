@@ -155,6 +155,12 @@ def screen(
     print(end="", flush=True)
 
 
+def waiting_screen(text: str, decorations: list[tuple[int, int, str]] = []) -> None:
+    display.screen([text], keys={"ENTER": "Continuer"}, decorations=decorations)
+    while get_key() != "\n":
+        pass
+
+
 def prompt_difficulty_level() -> int:
     prompt = "Quel sera le niveau de difficulté du bot ?"
     options = ["Facile", "Moyen", "Difficile"]
