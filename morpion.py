@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import random
 from random import randint
 
 import display
 import terminal
-from players import get_display_name
+from players import difficulty_level, get_display_name
 from scores import get_scores, set_scores
 from terminal import bold, get_key, invert, strip_escapes
 
@@ -162,12 +163,71 @@ def check_win(grid: list[list[str]]) -> str:
     return ""
 
 
+def check_possible_win(grid: list[list[str]], symbol: str) -> tuple[int, int] | None:
+    for y in range(3):
+        if grid[y][0] == grid[y][1] == f" {symbol} " and grid[y][2] == "   ":
+            return 2, y
+    for y in range(3):
+        if grid[y][1] == grid[y][2] == f" {symbol} " and grid[y][0] == "   ":
+            return 0, y
+    for y in range(3):
+        if grid[y][0] == grid[y][2] == f" {symbol} " and grid[y][1] == "   ":
+            return 1, y
+
+    for x in range(3):
+        if grid[0][x] == grid[1][x] == f" {symbol} " and grid[2][x] == "   ":
+            return x, 2
+    for x in range(3):
+        if grid[1][x] == grid[2][x] == f" {symbol} " and grid[0][x] == "   ":
+            return x, 0
+    for x in range(3):
+        if grid[0][x] == grid[2][x] == f" {symbol} " and grid[1][x] == "   ":
+            return x, 1
+
+    if grid[0][0] == grid[1][1] == f" {symbol} " and grid[2][2] == "   ":
+        return 2, 2
+    if grid[1][1] == grid[2][2] == f" {symbol} " and grid[0][0] == "   ":
+        return 0, 0
+    if grid[0][0] == grid[2][2] == f" {symbol} " and grid[1][1] == "   ":
+        return 1, 1
+
+    if grid[0][2] == grid[1][1] == f" {symbol} " and grid[2][0] == "   ":
+        return 0, 2
+    if grid[1][1] == grid[2][0] == f" {symbol} " and grid[0][2] == "   ":
+        return 2, 0
+    if grid[0][2] == grid[2][0] == f" {symbol} " and grid[1][1] == "   ":
+        return 1, 1
+
+    return None
+
+
 def auto_play(bot_name: str, symbol: str, ennemy_symbol: str, grid: list[list[str]]) -> tuple[int, int]:
-    # le morpion n'a pas de niveau de difficulté car c'est compliqué de déterminer la meilleur stratégie
-    x, y = randint(0, 2), randint(0, 2)
-    while grid[y][x] != "   ":
+    diff_level = difficulty_level(bot_name)
+
+    if diff_level == 1:  # niveau de difficulté moyen
+        # le bot à 1 chance sur 2 d'être en mode "difficile"
+        diff_level = random.choice((0, 2))
+
+    if diff_level == 0:  # niveau de difficulté facile
         x, y = randint(0, 2), randint(0, 2)
-    return x, y
+        while grid[y][x] != "   ":
+            x, y = randint(0, 2), randint(0, 2)
+        return x, y
+    else:  # niveau de difficulté difficile
+        # ici le bot ne joue pas toujours le meilleur coup car il est difficile à determiner
+        win_pos = check_possible_win(grid, symbol)
+        if win_pos:
+            return win_pos
+
+        ennemy_win_pos = check_possible_win(grid, ennemy_symbol)
+        if ennemy_win_pos:
+            return ennemy_win_pos
+
+        x, y = randint(0, 2), randint(0, 2)
+        while grid[y][x] != "   ":
+            x, y = randint(0, 2), randint(0, 2)
+
+        return x, y
 
 
 def game(player1: str, player2: str) -> None:
@@ -204,7 +264,7 @@ def game(player1: str, player2: str) -> None:
             while get_key() != "\n":
                 pass
         else:
-            place_symbol(get_display_name(playing), symbol, grid)
+            place_symbol(playing, symbol, grid)
 
         winner = check_win(grid)
         if winner != "":
