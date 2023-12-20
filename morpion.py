@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+from random import randint
+
 import display
 import terminal
+from players import get_display_name
 from scores import get_scores, set_scores
 from terminal import bold, get_key, invert, strip_escapes
 
@@ -26,15 +29,17 @@ def add_score(winner: str, loser: str, *, tie: bool = False) -> None:
     scores: dict[str, list[float]]
 
     scores = dict(get_scores(SCOREBOARD))
-    if winner not in scores:
+    if winner[0] != "\t" and winner not in scores:
         scores[winner] = [0, 0]
-    if loser not in scores:
+    if loser[0] != "\t" and loser not in scores:
         scores[loser] = [0, 0]
 
-    if not tie:
-        scores[winner][0] += 1
-    scores[winner][1] += 1
-    scores[loser][1] += 1
+    if winner[0] != "\t":
+        if not tie:
+            scores[winner][0] += 1
+        scores[winner][1] += 1
+    if loser[0] != "\t":
+        scores[loser][1] += 1
 
     set_scores(SCOREBOARD, scores.items())
 
@@ -63,7 +68,7 @@ def get_sorted_scores() -> list[tuple[str, str]]:
     return [(player, f"{winrate:.2f}") for player, winrate in score_lines]
 
 
-def display_grid(message: str, grid: list[list[str]]) -> None:
+def display_grid(message: str, grid: list[list[str]], *, keys: dict[str, str] | None = None) -> None:
     """Affiche la grille du jeu.
 
     :param message: Un message à afficher au dessus de la grille
@@ -74,12 +79,15 @@ def display_grid(message: str, grid: list[list[str]]) -> None:
     line: list[str]
     lines: list[str] = []
 
+    if keys is None:
+        keys = {"ENTER": "Valider", "↑ / ↓ / → / ←": "Choisir une case"}
+
     for line in grid:
         lines.append("│".join(line))
         lines.append("───┼───┼───")
 
     lines.pop()
-    display.screen(lines, keys={"ENTER": "Valider", "↑ / ↓ / → / ←": "Choisir une case"})
+    display.screen(lines, keys=keys)
 
     # here the cursor is at the end of the last line of the grid
     terminal.cursor_up(6)
@@ -154,6 +162,14 @@ def check_win(grid: list[list[str]]) -> str:
     return ""
 
 
+def auto_play(bot_name: str, symbol: str, ennemy_symbol: str, grid: list[list[str]]) -> tuple[int, int]:
+    # le morpion n'a pas de niveau de difficulté car c'est compliqué de déterminer la meilleur stratégie
+    x, y = randint(0, 2), randint(0, 2)
+    while grid[y][x] != "   ":
+        x, y = randint(0, 2), randint(0, 2)
+    return x, y
+
+
 def game(player1: str, player2: str) -> None:
     """Lance une partie de morpion et sauvegarde le score à la fin de la partie.
 
@@ -165,6 +181,9 @@ def game(player1: str, player2: str) -> None:
     waiting: str
     winner: str
     loser: str
+    symbol: str
+    x: int
+    y: int
 
     grid = [
         ["   ", "   ", "   "],
@@ -176,10 +195,16 @@ def game(player1: str, player2: str) -> None:
     while True:
         playing, waiting = waiting, playing
 
-        if playing == player1:
-            place_symbol(playing, "×", grid)
+        symbol = "×" if playing == player1 else "○"
+        if playing[0] == "\t":
+            x, y = auto_play(playing, symbol, "○" if playing == player1 else "×", grid)
+            grid[y][x] = f" {symbol} "
+
+            display_grid(f"{bold(get_display_name(playing))} a joué !", grid, keys={"ENTER": "Continuer"})
+            while get_key() != "\n":
+                pass
         else:
-            place_symbol(playing, "○", grid)
+            place_symbol(get_display_name(playing), symbol, grid)
 
         winner = check_win(grid)
         if winner != "":
@@ -197,7 +222,7 @@ def game(player1: str, player2: str) -> None:
         add_score(winner, loser)
 
         display.screen(
-            [f"{bold(winner)} a gagné !!!"],
+            [f"{bold(get_display_name(winner))} a gagné !!!"],
             keys={"ENTER": "Continuer"},
         )
 
