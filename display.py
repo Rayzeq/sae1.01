@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import display
 import terminal
-from terminal import bold, get_key, green, red, strip_escapes
+from terminal import bold, get_key, green, invert, red, strip_escapes
 
 
 def print_at(x: int, y: int, text: str) -> None:
@@ -176,7 +176,7 @@ def prompt_difficulty_level() -> int:
         print_at(center(len(prompt), width), y, bold(prompt))
         for i, line in enumerate(options):
             if i == selected:
-                print_at(x - 2, y + 2 + i, green("> ") + line)
+                print_at(x - 2, y + 2 + i, green("> ") + invert(line))
             else:
                 print_at(x, y + 2 + i, line)
 
