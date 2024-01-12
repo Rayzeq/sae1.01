@@ -164,6 +164,13 @@ def check_win(grid: list[list[str]]) -> str:
 
 
 def check_possible_win(grid: list[list[str]], symbol: str) -> tuple[int, int] | None:
+    """Vérifie si un symbole peut gagner.
+
+    :param grid:   La grille de jeu
+    :param symbol: Le symbole que l'on veut vérifier
+    :returns:      La position où le joueur doit placer son symbol pour gagner,
+                   ou None s'il n'y a pas de victoire en un seul coup possible
+    """
     for y in range(3):
         if grid[y][0] == grid[y][1] == f" {symbol} " and grid[y][2] == "   ":
             return 2, y
@@ -202,6 +209,16 @@ def check_possible_win(grid: list[list[str]], symbol: str) -> tuple[int, int] | 
 
 
 def auto_play(bot_name: str, symbol: str, ennemy_symbol: str, grid: list[list[str]]) -> tuple[int, int]:
+    """Choisi la position à jouer en fonction du niveau de difficulté du bot.
+
+    Si cette fonction est appelée avec le nom d'un joueur, son comportement n'est pas définie.
+
+    :param bot_name:      Le nom du bot (qui contient des métadonnées sur sa difficultée)
+    :param symbol:        Le symbole assigné au bot
+    :param ennemy_symbol: Le symbol assigné à l'ennemi du bot
+    :param grid:          La grille de jeu
+    :returns:             La position où le bot va placer son sympbol
+    """
     diff_level = difficulty_level(bot_name)
 
     if diff_level == 1:  # niveau de difficulté moyen

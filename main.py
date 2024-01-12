@@ -182,7 +182,6 @@ def get_player_roles(question: str, player1: str, player2: str, rules: list[str]
     :param player1:  Le nom du joueur 1 (l'ordre n'a pas d'importance)
     :param player2:  Le nom du joueur 2
     :param rules:    Les règles du jeu pour lequel un rôle est en train d'être choisi
-
     :returns:   Le joueur qui à été selectionné en premier et l'autre en deuxième. Si l'utilisateur est revenu au menu principal ("", "") sera retourné.
     """
     p1: str

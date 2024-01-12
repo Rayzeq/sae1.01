@@ -50,7 +50,6 @@ def get_sorted_scores() -> list[tuple[str, str]]:
     Le score d'un joueur représente son pourcentage de victoires.
 
     :returns: Les scores triés.
-    :rtype:   Une liste de tuples (nom du joueur, score).
     """
     score_lines: list[tuple[str, float]]
     player: str
@@ -69,6 +68,14 @@ def get_sorted_scores() -> list[tuple[str, str]]:
 
 
 def auto_choose(bot_name: str, matches_count: int) -> int:
+    """Choisis un nombre d'allumettes à prendre en fonction du niveau de difficulté du bot.
+
+    Si cette fonction est appelée avec le nom d'un joueur, son comportement n'est pas définie.
+
+    :param bot_name:      Le nom du bot (qui contient des métadonnées sur sa difficultée)
+    :param matches_count: Le nombre d'allumettes restante
+    :returns:             Le nombre d'allumettes à prendre
+    """
     diff_level = difficulty_level(bot_name)
 
     if diff_level == 1:  # niveau de difficulté moyen

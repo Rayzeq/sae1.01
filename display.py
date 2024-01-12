@@ -156,12 +156,21 @@ def screen(
 
 
 def waiting_screen(text: str, decorations: list[tuple[int, int, str]] = []) -> None:
+    """Affiche un écran qui se contente d'attendre que l'utilisateur appuie sur entré.
+
+    :param text:        Le texte à afficher au milieu de l'écran
+    :param decorations: Même chose que dans `screen`.
+    """
     display.screen([text], keys={"ENTER": "Continuer"}, decorations=decorations)
     while get_key() != "\n":
         pass
 
 
 def prompt_difficulty_level() -> int:
+    """Affiche un menu qui propose trois choix ("Facile", "Moyen", "Difficile").
+
+    :returns: L'indice de l'option qui à été choisie
+    """
     prompt = "Quel sera le niveau de difficulté du bot ?"
     options = ["Facile", "Moyen", "Difficile"]
     selected = 0
@@ -193,6 +202,16 @@ def prompt_difficulty_level() -> int:
 
 
 def prompt_player(question: str, *, decorations: list[tuple[int, int, str]] = [], invalid: list[str] = []) -> str:
+    r"""Affiche un écran qui demande au joueur d'entrer son nom, ou d'appuyer sur F1 pour qu'un bot joue.
+
+    :param question:    Le texte de la question qui sera affiché
+    :param decorations: Même chose que dans `screen`.
+    :param invalid:     La liste des noms invalides (permet d'empecher les deux joueurs de mettre le même nom)
+    :returns:           Le nom qui à été rentré par le joueur, ou le nom du bot
+
+    Le nom du bot est formaté comme ceci: "\txy" ou `x` est l'indice du bot (joueur 1 ou joueur 2)
+    et `y` est le niveau de difficulté du bot (entre 0 et 2)
+    """
     key: str
     value: str = ""
     prompt: str

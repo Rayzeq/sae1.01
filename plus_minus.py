@@ -134,6 +134,14 @@ def get_sorted_scores() -> list[tuple[str, str]]:
 
 
 def auto_guess(bot_name: str) -> int:
+    """Choisis un nombre à deviner en fonction du niveau de difficulté du bot.
+
+    Si cette fonction est appelée avec le nom d'un joueur, son comportement n'est pas définie.
+    Cette fonction utilise le minimum et maximum actuels connus qui est enregistré dans le nom du bot
+
+    :param bot_name: Le nom du bot (qui contient des métadonnées utiles)
+    :returns:        Le nombre que le bot à deviné
+    """
     diff_level = difficulty_level(bot_name)
     min, max = map(int, bot_name.split(",")[1:])
 
@@ -148,6 +156,16 @@ def auto_guess(bot_name: str) -> int:
 
 
 def update_bot(bot: str, guess: int, number: int) -> str:
+    """Met à jour les métadonnées contenue dans le bot.
+
+    Si cette fonction est appelée avec le nom d'un joueur, son comportement n'est pas définie.
+    Ces métadonnées contiennent les nombres minimum et maximum connus pour le chiffre qui est entrain d'être deviné.
+
+    :param bot:    Le nom du bot
+    :param guess:  Le nombre que le bot viens de deviner
+    :param number: Le nombre que le bot cherche
+    :returns:      Le nouveau du bot
+    """
     base_name, min, max = bot.split(",")
     if number > guess:
         min = str(guess + 1)
