@@ -211,8 +211,15 @@ def check_win(grid: list[list[str]]) -> str:
     return ""
 
 
-def auto_play(bot_name: str, color: str, ennemy_color: str, grid: list[list[str]]) -> int:
-    # le puissance 4 n'a pas de niveau de difficulté car c'est compliqué de déterminer la meilleur stratégie
+def auto_play(grid: list[list[str]]) -> int:
+    """Choisi la position à jouer.
+
+    Le puissance 4 n'a pas de niveaux de difficulté car c'est compliqué de déterminer la meilleur stratégie.
+    Si cette fonction est appelée avec le nom d'un joueur, son comportement n'est pas définie.
+
+    :param grid:          La grille de jeu
+    :returns:             La position où le bot va placer son sympbol
+    """
     x = randint(0, 6)
     while grid[0][x] != " ":
         x = randint(0, 6)
@@ -250,7 +257,7 @@ def game(player1: str, player2: str) -> None:
 
         color = P1_COLOR if playing == player1 else P2_COLOR
         if playing[0] == "\t":
-            x = auto_play(playing, color, P2_COLOR if playing == player1 else P1_COLOR, grid)
+            x = auto_play(grid)
             drop_token(x, color, grid)
         else:
             place_token(playing, color, grid)
