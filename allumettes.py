@@ -91,7 +91,7 @@ def auto_choose(bot_name: str, matches_count: int) -> int:
             target = (matches_count // 4) * 4 + 1
             to_take = matches_count - target
         if (to_take <= 0) or (to_take > 3):
-            # en temps normal, ce code ne devrait jamais s'exécuter
+            # ce code sera exécuté si le bot se retrouve avec un nombre d'allumettes avec lequel il ne peut pas gagner
             return 1
         else:
             return to_take
