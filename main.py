@@ -13,6 +13,7 @@ import plus_minus
 import pow4
 import terminal
 from display import center, display_at, print_at
+from players import get_display_name
 from terminal import bold, get_key, gray, green, invert, strip_escapes
 
 SCOREBOARD_WIDTH = 40
@@ -169,9 +170,9 @@ def login_screen(player: str, player1: str | None = None) -> str:
     :returns:       Le nom que le joueur à choisis
     """
     if player1 is None:
-        return display.prompt(f"NOM DU {bold(player)}", invalid=[])
+        return display.prompt_player(f"NOM DU {bold(player)}", invalid=[])
     else:
-        return display.prompt(f"NOM DU {bold(player)}", invalid=[player1])
+        return display.prompt_player(f"NOM DU {bold(player)}", invalid=[player1])
 
 
 def get_player_roles(question: str, player1: str, player2: str, rules: list[str]) -> tuple[str, str]:
@@ -181,7 +182,6 @@ def get_player_roles(question: str, player1: str, player2: str, rules: list[str]
     :param player1:  Le nom du joueur 1 (l'ordre n'a pas d'importance)
     :param player2:  Le nom du joueur 2
     :param rules:    Les règles du jeu pour lequel un rôle est en train d'être choisi
-
     :returns:   Le joueur qui à été selectionné en premier et l'autre en deuxième. Si l'utilisateur est revenu au menu principal ("", "") sera retourné.
     """
     p1: str
@@ -198,13 +198,13 @@ def get_player_roles(question: str, player1: str, player2: str, rules: list[str]
     content = [bold(question), "", ""]
 
     while True:
-        content[1] = p1
-        content[2] = p2
+        content[1] = get_display_name(p1)
+        content[2] = get_display_name(p2)
 
         if player1 == p1:
-            content[1] = "\b\b" + green("> ") + invert(p1)
+            content[1] = "\b\b" + green("> ") + invert(content[1])
         if player1 == p2:
-            content[2] = "\b\b" + green("> ") + invert(p2)
+            content[2] = "\b\b" + green("> ") + invert(content[2])
 
         display.screen(content, keys={"q": "Écran titre", "ENTER": "Valider"})
 

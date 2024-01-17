@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import time
+from random import randint
 
 import display
 import terminal
 from display import center
+from players import get_display_name
 from scores import get_scores, set_scores
 from terminal import bold, get_key, strip_escapes
 
@@ -36,15 +38,17 @@ def add_score(winner: str, loser: str, *, tie: bool = False) -> None:
     scores: dict[str, list[float]]
 
     scores = dict(get_scores(SCOREBOARD))
-    if winner not in scores:
+    if winner[0] != "\t" and winner not in scores:
         scores[winner] = [0, 0]
-    if loser not in scores:
+    if loser[0] != "\t" and loser not in scores:
         scores[loser] = [0, 0]
 
-    if not tie:
-        scores[winner][0] += 1
-    scores[winner][1] += 1
-    scores[loser][1] += 1
+    if winner[0] != "\t":
+        if not tie:
+            scores[winner][0] += 1
+        scores[winner][1] += 1
+    if loser[0] != "\t":
+        scores[loser][1] += 1
 
     set_scores(SCOREBOARD, scores.items())
 
@@ -207,6 +211,21 @@ def check_win(grid: list[list[str]]) -> str:
     return ""
 
 
+def auto_play(grid: list[list[str]]) -> int:
+    """Choisi la position à jouer.
+
+    Le puissance 4 n'a pas de niveaux de difficulté car c'est compliqué de déterminer la meilleur stratégie.
+    Si cette fonction est appelée avec le nom d'un joueur, son comportement n'est pas définie.
+
+    :param grid:          La grille de jeu
+    :returns:             La position où le bot va placer son sympbol
+    """
+    x = randint(0, 6)
+    while grid[0][x] != " ":
+        x = randint(0, 6)
+    return x
+
+
 def game(player1: str, player2: str) -> None:
     """Lance une partie de puissance 4 et sauvegarde le score à la fin de la partie.
 
@@ -220,6 +239,8 @@ def game(player1: str, player2: str) -> None:
     waiting: str
     winner: str
     loser: str
+    color: str
+    x: int
 
     grid = [
         [" ", " ", " ", " ", " ", " ", " "],
@@ -234,10 +255,12 @@ def game(player1: str, player2: str) -> None:
     while True:
         playing, waiting = waiting, playing
 
-        if playing == player1:
-            place_token(playing, P1_COLOR, grid)
+        color = P1_COLOR if playing == player1 else P2_COLOR
+        if playing[0] == "\t":
+            x = auto_play(grid)
+            drop_token(x, color, grid)
         else:
-            place_token(playing, P2_COLOR, grid)
+            place_token(playing, color, grid)
 
         winner = check_win(grid)
         if winner != "":
@@ -255,7 +278,7 @@ def game(player1: str, player2: str) -> None:
         add_score(winner, loser)
 
         display.screen(
-            [f"{bold(winner)} a gagné !!!"],
+            [f"{bold(get_display_name(winner))} a gagné !!!"],
             keys={"ENTER": "Continuer"},
         )
 

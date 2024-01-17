@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+import random
+from random import randint
+
 import display
 import terminal
+from players import difficulty_level, get_display_name
 from scores import get_scores, set_scores
 from terminal import bold, get_key, invert, strip_escapes
 
@@ -26,15 +30,17 @@ def add_score(winner: str, loser: str, *, tie: bool = False) -> None:
     scores: dict[str, list[float]]
 
     scores = dict(get_scores(SCOREBOARD))
-    if winner not in scores:
+    if winner[0] != "\t" and winner not in scores:
         scores[winner] = [0, 0]
-    if loser not in scores:
+    if loser[0] != "\t" and loser not in scores:
         scores[loser] = [0, 0]
 
-    if not tie:
-        scores[winner][0] += 1
-    scores[winner][1] += 1
-    scores[loser][1] += 1
+    if winner[0] != "\t":
+        if not tie:
+            scores[winner][0] += 1
+        scores[winner][1] += 1
+    if loser[0] != "\t":
+        scores[loser][1] += 1
 
     set_scores(SCOREBOARD, scores.items())
 
@@ -63,7 +69,7 @@ def get_sorted_scores() -> list[tuple[str, str]]:
     return [(player, f"{winrate:.2f}") for player, winrate in score_lines]
 
 
-def display_grid(message: str, grid: list[list[str]]) -> None:
+def display_grid(message: str, grid: list[list[str]], *, keys: dict[str, str] | None = None) -> None:
     """Affiche la grille du jeu.
 
     :param message: Un message à afficher au dessus de la grille
@@ -74,12 +80,15 @@ def display_grid(message: str, grid: list[list[str]]) -> None:
     line: list[str]
     lines: list[str] = []
 
+    if keys is None:
+        keys = {"ENTER": "Valider", "↑ / ↓ / → / ←": "Choisir une case"}
+
     for line in grid:
         lines.append("│".join(line))
         lines.append("───┼───┼───")
 
     lines.pop()
-    display.screen(lines, keys={"ENTER": "Valider", "↑ / ↓ / → / ←": "Choisir une case"})
+    display.screen(lines, keys=keys)
 
     # here the cursor is at the end of the last line of the grid
     terminal.cursor_up(6)
@@ -154,6 +163,90 @@ def check_win(grid: list[list[str]]) -> str:
     return ""
 
 
+def check_possible_win(grid: list[list[str]], symbol: str) -> tuple[int, int] | None:
+    """Vérifie si un symbole peut gagner.
+
+    :param grid:   La grille de jeu
+    :param symbol: Le symbole que l'on veut vérifier
+    :returns:      La position où le joueur doit placer son symbol pour gagner,
+                   ou None s'il n'y a pas de victoire en un seul coup possible
+    """
+    for y in range(3):
+        if grid[y][0] == grid[y][1] == f" {symbol} " and grid[y][2] == "   ":
+            return 2, y
+    for y in range(3):
+        if grid[y][1] == grid[y][2] == f" {symbol} " and grid[y][0] == "   ":
+            return 0, y
+    for y in range(3):
+        if grid[y][0] == grid[y][2] == f" {symbol} " and grid[y][1] == "   ":
+            return 1, y
+
+    for x in range(3):
+        if grid[0][x] == grid[1][x] == f" {symbol} " and grid[2][x] == "   ":
+            return x, 2
+    for x in range(3):
+        if grid[1][x] == grid[2][x] == f" {symbol} " and grid[0][x] == "   ":
+            return x, 0
+    for x in range(3):
+        if grid[0][x] == grid[2][x] == f" {symbol} " and grid[1][x] == "   ":
+            return x, 1
+
+    if grid[0][0] == grid[1][1] == f" {symbol} " and grid[2][2] == "   ":
+        return 2, 2
+    if grid[1][1] == grid[2][2] == f" {symbol} " and grid[0][0] == "   ":
+        return 0, 0
+    if grid[0][0] == grid[2][2] == f" {symbol} " and grid[1][1] == "   ":
+        return 1, 1
+
+    if grid[0][2] == grid[1][1] == f" {symbol} " and grid[2][0] == "   ":
+        return 0, 2
+    if grid[1][1] == grid[2][0] == f" {symbol} " and grid[0][2] == "   ":
+        return 2, 0
+    if grid[0][2] == grid[2][0] == f" {symbol} " and grid[1][1] == "   ":
+        return 1, 1
+
+    return None
+
+
+def auto_play(bot_name: str, symbol: str, ennemy_symbol: str, grid: list[list[str]]) -> tuple[int, int]:
+    """Choisi la position à jouer en fonction du niveau de difficulté du bot.
+
+    Si cette fonction est appelée avec le nom d'un joueur, son comportement n'est pas définie.
+
+    :param bot_name:      Le nom du bot (qui contient des métadonnées sur sa difficultée)
+    :param symbol:        Le symbole assigné au bot
+    :param ennemy_symbol: Le symbol assigné à l'ennemi du bot
+    :param grid:          La grille de jeu
+    :returns:             La position où le bot va placer son sympbol
+    """
+    diff_level = difficulty_level(bot_name)
+
+    if diff_level == 1:  # niveau de difficulté moyen
+        # le bot à 1 chance sur 2 d'être en mode "difficile"
+        diff_level = random.choice((0, 2))
+
+    if diff_level == 0:  # niveau de difficulté facile
+        x, y = randint(0, 2), randint(0, 2)
+        while grid[y][x] != "   ":
+            x, y = randint(0, 2), randint(0, 2)
+        return x, y
+    else:  # niveau de difficulté difficile
+        # ici le bot ne joue pas toujours le meilleur coup car il est difficile à determiner
+        win_pos = check_possible_win(grid, symbol)
+        if win_pos:
+            return win_pos
+
+        ennemy_win_pos = check_possible_win(grid, ennemy_symbol)
+        if ennemy_win_pos:
+            return ennemy_win_pos
+
+        x, y = randint(0, 2), randint(0, 2)
+        while grid[y][x] != "   ":
+            x, y = randint(0, 2), randint(0, 2)
+
+        return x, y
+
+
 def game(player1: str, player2: str) -> None:
     """Lance une partie de morpion et sauvegarde le score à la fin de la partie.
 
@@ -165,6 +258,9 @@ def game(player1: str, player2: str) -> None:
     waiting: str
     winner: str
     loser: str
+    symbol: str
+    x: int
+    y: int
 
     grid = [
         ["   ", "   ", "   "],
@@ -176,10 +272,16 @@ def game(player1: str, player2: str) -> None:
     while True:
         playing, waiting = waiting, playing
 
-        if playing == player1:
-            place_symbol(playing, "×", grid)
+        symbol = "×" if playing == player1 else "○"
+        if playing[0] == "\t":
+            x, y = auto_play(playing, symbol, "○" if playing == player1 else "×", grid)
+            grid[y][x] = f" {symbol} "
+
+            display_grid(f"{bold(get_display_name(playing))} a joué !", grid, keys={"ENTER": "Continuer"})
+            while get_key() != "\n":
+                pass
         else:
-            place_symbol(playing, "○", grid)
+            place_symbol(playing, symbol, grid)
 
         winner = check_win(grid)
         if winner != "":
@@ -197,7 +299,7 @@ def game(player1: str, player2: str) -> None:
         add_score(winner, loser)
 
         display.screen(
-            [f"{bold(winner)} a gagné !!!"],
+            [f"{bold(get_display_name(winner))} a gagné !!!"],
             keys={"ENTER": "Continuer"},
         )
 

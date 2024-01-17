@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import display
 import terminal
-from terminal import get_key, green, red, strip_escapes
+from terminal import bold, get_key, green, invert, red, strip_escapes
 
 
 def print_at(x: int, y: int, text: str) -> None:
@@ -154,13 +155,62 @@ def screen(
     print(end="", flush=True)
 
 
-def prompt(question: str, *, decorations: list[tuple[int, int, str]] = [], invalid: list[str] = []) -> str:
-    """Demande à l'utilisateur de rentrer un texte.
+def waiting_screen(text: str, decorations: list[tuple[int, int, str]] = []) -> None:
+    """Affiche un écran qui se contente d'attendre que l'utilisateur appuie sur entré.
 
-    :param question:    La question à afficher.
+    :param text:        Le texte à afficher au milieu de l'écran
     :param decorations: Même chose que dans `screen`.
-    :param invalid:     La liste des valeurs qui ne serons pas acceptées.
-    :returns:           Le texte que l'utilisateur a entré.
+    """
+    display.screen([text], keys={"ENTER": "Continuer"}, decorations=decorations)
+    while get_key() != "\n":
+        pass
+
+
+def prompt_difficulty_level() -> int:
+    """Affiche un menu qui propose trois choix ("Facile", "Moyen", "Difficile").
+
+    :returns: L'indice de l'option qui à été choisie
+    """
+    prompt = "Quel sera le niveau de difficulté du bot ?"
+    options = ["Facile", "Moyen", "Difficile"]
+    selected = 0
+
+    while True:
+        terminal.clear()
+        width, height = terminal.get_size()
+
+        x = center(len("Difficile"), width)
+        y = center(len(options) + 2, height)
+
+        print_at(center(len(prompt), width), y, bold(prompt))
+        for i, line in enumerate(options):
+            if i == selected:
+                print_at(x - 2, y + 2 + i, green("> ") + invert(line))
+            else:
+                print_at(x, y + 2 + i, line)
+
+        display.keys_help({"↑ / ↓": "Choisir une option", "ENTER": "Valider"})
+        print("", end="", flush=True)
+
+        key = get_key()
+        if key == "UP":
+            selected = (selected - 1) % len(options)
+        elif key == "DOWN":
+            selected = (selected + 1) % len(options)
+        elif key == "\n":
+            return selected
+
+
+def prompt_player(question: str, *, decorations: list[tuple[int, int, str]] = [], invalid: list[str] = []) -> str:
+    r"""Affiche un écran qui demande au joueur d'entrer son nom, ou d'appuyer sur F1 pour qu'un bot joue.
+
+    :param question:    Le texte de la question qui sera affiché
+    :param decorations: Même chose que dans `screen`.
+    :param invalid:     La liste des noms invalides (permet d'empecher les deux joueurs de mettre le même nom)
+    :returns:           Le nom qui à été rentré par le joueur, ou le nom du bot
+
+    Le nom du bot est formaté comme ceci: "\txy" ou `x` est l'indice du bot (joueur 1 ou joueur 2)
+    et `y` est le niveau de difficulté du bot (entre 0 et 2)
     """
     key: str
     value: str = ""
@@ -175,7 +225,11 @@ def prompt(question: str, *, decorations: list[tuple[int, int, str]] = [], inval
         else:
             prompt += green("> ")
 
-        screen([question, prompt + value], keys={"ENTER": "Valider"}, decorations=decorations)
+        screen(
+            [question, prompt + value],
+            keys={"ENTER": "Valider", "F1": "Pas de joueur (un bot jouera)"},
+            decorations=decorations,
+        )
 
         key = get_key()
 
@@ -183,6 +237,9 @@ def prompt(question: str, *, decorations: list[tuple[int, int, str]] = [], inval
             value += key
         elif key == "BACKSPACE":
             value = value[:-1]
+        elif key == "F1":
+            terminal.hide_cursor()
+            return "\t" + str(len(invalid) + 1) + str(prompt_difficulty_level())
         elif key == "\n" and value != "" and value not in invalid:
             terminal.hide_cursor()
             return value
