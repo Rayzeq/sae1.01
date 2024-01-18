@@ -177,6 +177,7 @@ def prompt_difficulty_level() -> int:
 
     while True:
         terminal.clear()
+        main_frame()
         width, height = terminal.get_size()
 
         x = center(len("Difficile"), width)
